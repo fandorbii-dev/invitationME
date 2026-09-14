@@ -9,13 +9,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ivory:#F8F1DE;
-    --ivory-deep:#EDE1C4;
-    --rose:#C1694F;
-    --rose-soft:#E7C9A9;
-    --sage:#748156;
-    --brown:#463424;
-    --gold:#A97C3F;
+    --ivory:#F5EFE3;
+    --ivory-deep:#E7DFCC;
+    --rose:#8C6A8F;
+    --rose-soft:#D3BFD6;
+    --sage:#74815A;
+    --brown:#413043;
+    --gold:#9C8752;
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
@@ -219,7 +219,7 @@
     transition:background 0.2s ease, transform 0.2s ease;
   }
   .rsvp-btn:hover{
-    background:#b87680;
+    background:#71566f;
     transform:translateY(-1px);
   }
 
@@ -249,10 +249,196 @@
 
   @media (prefers-reduced-motion: reduce){
     *{transition:none !important;}
+    .petal{display:none;}
+  }
+
+  /* ---------- PETALES FLOTTANTS ---------- */
+  .petals{
+    position:fixed;
+    inset:0;
+    z-index:998;
+    pointer-events:none;
+    overflow:hidden;
+  }
+  .petal{
+    position:absolute;
+    top:-6%;
+    width:14px;
+    height:17px;
+    background:var(--rose);
+    border-radius:0 100% 0 100%;
+    opacity:0.55;
+    animation-name:petalFall;
+    animation-timing-function:linear;
+    animation-iteration-count:infinite;
+    will-change:transform;
+  }
+  .petal.alt{ background:var(--rose-soft); }
+  .petal.leaf{ background:var(--sage); opacity:0.4; border-radius:0 100% 0 100% / 0 100% 0 100%; }
+
+  @keyframes petalFall{
+    0%{ transform:translate(0,0) rotate(0deg); }
+    50%{ transform:translate(18px,55vh) rotate(170deg); }
+    100%{ transform:translate(-16px,112vh) rotate(340deg); }
+  }
+
+  /* ---------- ENVELOPPE D'OUVERTURE ---------- */
+  body.locked{ overflow:hidden; }
+
+  .envelope-overlay{
+    position:fixed;
+    inset:0;
+    z-index:1000;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:26px;
+    background:linear-gradient(160deg, var(--ivory) 0%, var(--ivory-deep) 100%);
+    transition:opacity 0.7s ease;
+  }
+  .envelope-overlay.hidden{
+    opacity:0;
+    pointer-events:none;
+  }
+  .envelope-names{
+    font-family:'Cormorant Garamond',serif;
+    font-size:1.5rem;
+    color:var(--brown);
+    text-align:center;
+  }
+  .envelope-scene{
+    perspective:1400px;
+  }
+  .envelope{
+    position:relative;
+    width:260px;
+    height:168px;
+    cursor:pointer;
+  }
+  .env-back{
+    position:absolute;
+    inset:0;
+    background:var(--ivory-deep);
+    border-radius:6px;
+    box-shadow:0 14px 34px rgba(70,52,36,0.18);
+  }
+  .env-pocket{
+    position:absolute;
+    inset:0;
+    background:var(--rose-soft);
+    clip-path:polygon(0 100%, 100% 100%, 100% 24%, 50% 54%, 0 24%);
+    border-radius:0 0 6px 6px;
+    z-index:2;
+  }
+  .env-letter{
+    position:absolute;
+    left:50%;
+    top:16%;
+    width:76%;
+    height:74%;
+    transform:translate(-50%,0);
+    background:var(--ivory);
+    border:1px solid var(--gold);
+    border-radius:2px;
+    z-index:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-size:1.15rem;
+    color:var(--rose);
+    padding:10px;
+    box-shadow:0 4px 14px rgba(70,52,36,0.12);
+    transition:transform 1s cubic-bezier(.5,0,.2,1) 0.35s;
+  }
+  .env-flap{
+    position:absolute;
+    top:0; left:0;
+    width:100%;
+    height:58%;
+    background:var(--rose);
+    clip-path:polygon(0 0, 100% 0, 50% 100%);
+    transform-origin:top center;
+    border-radius:6px 6px 0 0;
+    z-index:3;
+    transition:transform 0.85s cubic-bezier(.6,0,.3,1);
+  }
+  .env-seal{
+    position:absolute;
+    left:50%; top:36%;
+    transform:translate(-50%,-50%);
+    width:44px; height:44px;
+    border-radius:50%;
+    background:var(--gold);
+    color:var(--ivory);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.15rem;
+    z-index:4;
+    box-shadow:0 3px 10px rgba(0,0,0,0.22);
+    transition:opacity 0.35s ease;
+  }
+  .envelope.open .env-flap{
+    transform:rotateX(180deg);
+    z-index:1;
+  }
+  .envelope.open .env-seal{
+    opacity:0;
+  }
+  .envelope.open .env-letter{
+    transform:translate(-50%,-132%);
+    z-index:5;
+  }
+  .envelope-hint{
+    font-size:0.85rem;
+    letter-spacing:0.04em;
+    color:var(--sage);
+    animation:envPulse 1.8s ease-in-out infinite;
+  }
+  @keyframes envPulse{
+    0%,100%{opacity:0.55;}
+    50%{opacity:1;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .envelope-hint{animation:none;}
   }
 </style>
 </head>
-<body>
+<body class="locked">
+
+<div class="petals" aria-hidden="true">
+  <div class="petal" style="left:4%; animation-duration:12s; animation-delay:-1s;"></div>
+  <div class="petal alt" style="left:14%; animation-duration:16s; animation-delay:-6s; transform:scale(0.8);"></div>
+  <div class="petal leaf" style="left:24%; animation-duration:14s; animation-delay:-3s; transform:scale(1.1);"></div>
+  <div class="petal" style="left:36%; animation-duration:10s; animation-delay:-8s; transform:scale(0.9);"></div>
+  <div class="petal alt" style="left:48%; animation-duration:18s; animation-delay:-2s;"></div>
+  <div class="petal" style="left:58%; animation-duration:13s; animation-delay:-10s; transform:scale(1.2);"></div>
+  <div class="petal leaf" style="left:68%; animation-duration:15s; animation-delay:-5s; transform:scale(0.85);"></div>
+  <div class="petal alt" style="left:78%; animation-duration:11s; animation-delay:-7s;"></div>
+  <div class="petal" style="left:88%; animation-duration:17s; animation-delay:-4s; transform:scale(1.05);"></div>
+  <div class="petal leaf" style="left:94%; animation-duration:12.5s; animation-delay:-9s; transform:scale(0.75);"></div>
+  <div class="petal alt" style="left:9%; animation-duration:19s; animation-delay:-12s; transform:scale(1.15);"></div>
+  <div class="petal" style="left:63%; animation-duration:9.5s; animation-delay:-2.5s; transform:scale(0.7);"></div>
+</div>
+
+<div class="envelope-overlay" id="envelope-overlay">
+  <p class="envelope-names">Manuela &amp; Elizée</p>
+  <div class="envelope-scene">
+    <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Ouvrir l'invitation">
+      <div class="env-back"></div>
+      <div class="env-letter">Vous êtes invité(e)<br>à notre mariage</div>
+      <div class="env-pocket"></div>
+      <div class="env-flap"></div>
+      <div class="env-seal">&#10047;</div>
+    </div>
+  </div>
+  <p class="envelope-hint">Touchez l'enveloppe pour l'ouvrir</p>
+</div>
+
 <div class="page">
 
   <!-- ================= HERO ================= -->
@@ -262,49 +448,49 @@
       <g>
         <path d="M15 95 Q 60 40, 150 30" stroke="#748156" stroke-width="2" fill="none" stroke-linecap="round"/>
         <ellipse cx="45" cy="55" rx="11" ry="4.5" fill="#748156" transform="rotate(-40 45 55)"/>
-        <ellipse cx="75" cy="38" rx="10" ry="4" fill="#8C9C6A" transform="rotate(-15 75 38)"/>
+        <ellipse cx="75" cy="38" rx="10" ry="4" fill="#8C8F62" transform="rotate(-15 75 38)"/>
         <ellipse cx="110" cy="30" rx="8" ry="3.5" fill="#748156" transform="rotate(5 110 30)"/>
         <g transform="translate(28,88)">
-          <g transform="rotate(0)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#C1694F"/></g>
-          <g transform="rotate(72)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#C1694F"/></g>
-          <g transform="rotate(144)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#C1694F"/></g>
-          <g transform="rotate(216)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#C1694F"/></g>
-          <g transform="rotate(288)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#C1694F"/></g>
-          <circle r="4.5" fill="#A97C3F"/>
+          <g transform="rotate(0)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#8C6A8F"/></g>
+          <g transform="rotate(72)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#8C6A8F"/></g>
+          <g transform="rotate(144)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#8C6A8F"/></g>
+          <g transform="rotate(216)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#8C6A8F"/></g>
+          <g transform="rotate(288)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#8C6A8F"/></g>
+          <circle r="4.5" fill="#9C8752"/>
         </g>
         <g transform="translate(55,68)">
-          <g transform="rotate(20)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E7C9A9"/></g>
-          <g transform="rotate(92)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E7C9A9"/></g>
-          <g transform="rotate(164)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E7C9A9"/></g>
-          <g transform="rotate(236)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E7C9A9"/></g>
-          <g transform="rotate(308)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E7C9A9"/></g>
-          <circle r="3" fill="#C1694F"/>
+          <g transform="rotate(20)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#D3BFD6"/></g>
+          <g transform="rotate(92)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#D3BFD6"/></g>
+          <g transform="rotate(164)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#D3BFD6"/></g>
+          <g transform="rotate(236)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#D3BFD6"/></g>
+          <g transform="rotate(308)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#D3BFD6"/></g>
+          <circle r="3" fill="#8C6A8F"/>
         </g>
-        <circle cx="95" cy="42" r="3.5" fill="#A97C3F"/>
+        <circle cx="95" cy="42" r="3.5" fill="#9C8752"/>
       </g>
       <!-- branche droite (miroir) -->
       <g transform="translate(440,0) scale(-1,1)">
         <path d="M15 95 Q 60 40, 150 30" stroke="#748156" stroke-width="2" fill="none" stroke-linecap="round"/>
         <ellipse cx="45" cy="55" rx="11" ry="4.5" fill="#748156" transform="rotate(-40 45 55)"/>
-        <ellipse cx="75" cy="38" rx="10" ry="4" fill="#8C9C6A" transform="rotate(-15 75 38)"/>
+        <ellipse cx="75" cy="38" rx="10" ry="4" fill="#8C8F62" transform="rotate(-15 75 38)"/>
         <ellipse cx="110" cy="30" rx="8" ry="3.5" fill="#748156" transform="rotate(5 110 30)"/>
         <g transform="translate(28,88)">
-          <g transform="rotate(0)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#C1694F"/></g>
-          <g transform="rotate(72)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#C1694F"/></g>
-          <g transform="rotate(144)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#C1694F"/></g>
-          <g transform="rotate(216)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#C1694F"/></g>
-          <g transform="rotate(288)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#C1694F"/></g>
-          <circle r="4.5" fill="#A97C3F"/>
+          <g transform="rotate(0)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#8C6A8F"/></g>
+          <g transform="rotate(72)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#8C6A8F"/></g>
+          <g transform="rotate(144)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#8C6A8F"/></g>
+          <g transform="rotate(216)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#8C6A8F"/></g>
+          <g transform="rotate(288)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#8C6A8F"/></g>
+          <circle r="4.5" fill="#9C8752"/>
         </g>
         <g transform="translate(55,68)">
-          <g transform="rotate(20)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E7C9A9"/></g>
-          <g transform="rotate(92)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E7C9A9"/></g>
-          <g transform="rotate(164)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E7C9A9"/></g>
-          <g transform="rotate(236)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E7C9A9"/></g>
-          <g transform="rotate(308)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E7C9A9"/></g>
-          <circle r="3" fill="#C1694F"/>
+          <g transform="rotate(20)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#D3BFD6"/></g>
+          <g transform="rotate(92)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#D3BFD6"/></g>
+          <g transform="rotate(164)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#D3BFD6"/></g>
+          <g transform="rotate(236)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#D3BFD6"/></g>
+          <g transform="rotate(308)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#D3BFD6"/></g>
+          <circle r="3" fill="#8C6A8F"/>
         </g>
-        <circle cx="95" cy="42" r="3.5" fill="#A97C3F"/>
+        <circle cx="95" cy="42" r="3.5" fill="#9C8752"/>
       </g>
     </svg>
 
@@ -377,8 +563,8 @@
   <!-- ================= FOOTER ================= -->
   <footer>
     <svg viewBox="0 0 120 30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M10 15 Q 60 0, 110 15" stroke="#A97C3F" stroke-width="1" fill="none"/>
-      <circle cx="60" cy="10" r="3" fill="#C1694F"/>
+      <path d="M10 15 Q 60 0, 110 15" stroke="#9C8752" stroke-width="1" fill="none"/>
+      <circle cx="60" cy="10" r="3" fill="#8C6A8F"/>
     </svg>
     <p>Avec amour, Manuela &amp; Elizée</p>
   </footer>
@@ -415,6 +601,29 @@
 
   updateCountdown();
   setInterval(updateCountdown, 1000);
+
+  // ----- Ouverture de l'enveloppe -----
+  const envelope = document.getElementById('envelope');
+  const envelopeOverlay = document.getElementById('envelope-overlay');
+  let envelopeOpened = false;
+
+  function openEnvelope(){
+    if(envelopeOpened) return;
+    envelopeOpened = true;
+    envelope.classList.add('open');
+    document.body.classList.remove('locked');
+    setTimeout(() => {
+      envelopeOverlay.classList.add('hidden');
+    }, 1300);
+  }
+
+  envelope.addEventListener('click', openEnvelope);
+  envelope.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      openEnvelope();
+    }
+  });
 </script>
 
 </body>
