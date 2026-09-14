@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Invitation</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; text-align: center; background-color: #f4f4f9; padding: 50px; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: inline-block; }
+        h1 { color: #ff4a5a; }
+        .btn { background: #ff4a5a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🎉 Vous êtes invité !</h1>
+        <p>Rejoignez-nous pour fêter mon anniversaire.</p>
+        <p><strong>Date :</strong> Samedi 10 Octobre à 20h</p>
+        <p><strong>Lieu :</strong> 123 Rue de la Fête, Paris</p>
+        <!-- Lien vers un formulaire Google Forms pour les réponses R.S.V.P -->
+        <a href="https://google.com" class="btn" target="_blank">Confirmer ma présence</a>
+    </div>
+</body>
+</html>
