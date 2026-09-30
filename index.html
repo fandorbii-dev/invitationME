@@ -1,770 +1,265 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manuela & Elizée · 19 décembre 2026</title>
-<meta name="description" content="Manuela et Elizée ont la joie de vous inviter à célébrer leur mariage le 19 décembre 2026 à l'Église Sainte Antoine de Padoue, Abomey-Calavi.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --ivory:#FDF8EC;
-    --ivory-deep:#F6E9C8;
-    --rose:#9C4FA6;
-    --rose-soft:#E6AEE8;
-    --sage:#6FA050;
-    --brown:#3B2A46;
-    --gold:#DBA829;
-  }
-  *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{
-    margin:0;
-    background:var(--ivory-deep);
-    color:var(--brown);
-    font-family:'Jost',sans-serif;
-    font-weight:300;
-    -webkit-font-smoothing:antialiased;
-  }
-  .page{
-    max-width:600px;
-    margin:0 auto;
-    background:var(--ivory);
-    box-shadow:0 0 60px rgba(74,59,54,0.12);
-    overflow:hidden;
-  }
-  section{
-    padding:56px 32px;
-    text-align:center;
-  }
-  .divider{
-    width:60px;height:1px;
-    background:var(--gold);
-    margin:28px auto;
-    opacity:0.6;
-  }
+import React, { useEffect, useMemo, useState } from "react";
+import { CalendarDays, Check, ChevronDown, Clock3, Copy, Gift, Heart, MapPin, Music2, Navigation, Phone, Sparkles, VolumeX } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
-  /* ---------- HERO ---------- */
-  .hero{
-    position:relative;
-    padding:44px 24px 40px;
-    background:linear-gradient(180deg, var(--ivory) 0%, #FEFCFA 100%);
-  }
-  .hero svg{
-    width:100%;
-    max-width:420px;
-    height:auto;
-    display:block;
-    margin:0 auto;
-  }
-  .hero-names{
-    font-family:'Cormorant Garamond',serif;
-    font-size:2.6rem;
-    line-height:1.15;
-    margin:18px 0 6px;
-    color:var(--brown);
-  }
-  .hero-amp{
-    color:var(--rose);
-    font-style:italic;
-    font-size:2.1rem;
-    display:block;
-  }
-  .hero-sub{
-    font-size:0.95rem;
-    letter-spacing:0.04em;
-    color:var(--sage);
-    margin:0 0 4px;
-  }
-  .hero-date{
-    font-family:'Cormorant Garamond',serif;
-    font-size:1.3rem;
-    color:var(--gold);
-    margin-top:10px;
-  }
+const WEDDING_DATE = new Date("2026-12-19T16:30:00+01:00");
+const colors = [
+  { name: "Bordeaux", value: "#6B1F2A" },
+  { name: "Sauge", value: "#8C9B8A" },
+  { name: "Ivoire", value: "#F5EBDD" },
+];
 
-  /* ---------- MOT D'INVITATION ---------- */
-  .invite-text{
-    font-size:1.05rem;
-    line-height:1.85;
-    max-width:440px;
-    margin:0 auto;
-    color:var(--brown);
-  }
-  .invite-text em{
-    font-family:'Cormorant Garamond',serif;
-    font-style:italic;
-    color:var(--rose);
-    font-size:1.15rem;
-  }
-
-  /* ---------- COMPTE A REBOURS ---------- */
-  .countdown-wrap{
-    background:var(--rose-soft);
-  }
-  .countdown-title{
-    font-family:'Cormorant Garamond',serif;
-    font-size:1.4rem;
-    margin-bottom:26px;
-  }
-  .countdown{
-    display:flex;
-    justify-content:center;
-    gap:14px;
-    flex-wrap:wrap;
-  }
-  .countdown div{
-    background:var(--ivory);
-    border-radius:8px;
-    padding:14px 10px;
-    min-width:64px;
-  }
-  .countdown .num{
-    font-family:'Cormorant Garamond',serif;
-    font-size:1.8rem;
-    font-weight:600;
-    color:var(--brown);
-    display:block;
-  }
-  .countdown .label{
-    font-size:0.7rem;
-    color:var(--sage);
-    text-transform:lowercase;
-  }
-
-  /* ---------- DETAILS ---------- */
-  .details-title{
-    font-family:'Cormorant Garamond',serif;
-    font-size:1.6rem;
-    margin-bottom:8px;
-  }
-  .program-label{
-    font-family:'Cormorant Garamond',serif;
-    font-style:italic;
-    font-size:1.05rem;
-    color:var(--rose);
-    margin:30px 0 -6px;
-  }
-  .dresscode-swatches{
-    display:flex;
-    justify-content:center;
-    gap:14px;
-    margin-top:22px;
-  }
-  .dresscode-swatches span{
-    width:30px;height:30px;
-    border-radius:50%;
-    display:block;
-    box-shadow:0 2px 6px rgba(65,48,67,0.18);
-  }
-  .detail-block{
-    margin:28px 0;
-  }
-  .detail-block .icon{
-    width:30px;height:30px;
-    margin:0 auto 10px;
-    display:block;
-    color:var(--gold);
-  }
-  .detail-block .label{
-    font-size:0.75rem;
-    letter-spacing:0.05em;
-    color:var(--sage);
-    margin-bottom:4px;
-  }
-  .detail-block .value{
-    font-family:'Cormorant Garamond',serif;
-    font-size:1.25rem;
-    color:var(--brown);
-  }
-  .map-link{
-    display:inline-block;
-    margin-top:10px;
-    font-size:0.85rem;
-    color:var(--rose);
-    text-decoration:none;
-    border-bottom:1px solid var(--rose-soft);
-  }
-
-  /* ---------- NOCES DE CANA (texte discret) ---------- */
-  .cana{
-    background:linear-gradient(180deg, var(--ivory) 0%, var(--ivory-deep) 100%);
-    padding:32px 32px 38px;
-    text-align:center;
-  }
-  .cana-text{
-    font-family:'Cormorant Garamond',serif;
-    font-style:italic;
-    font-size:1.05rem;
-    color:var(--brown);
-    max-width:380px;
-    margin:0 auto;
-    line-height:1.7;
-  }
-  .cana-ref{
-    display:block;
-    margin-top:10px;
-    font-size:0.8rem;
-    font-style:normal;
-    letter-spacing:0.04em;
-    color:var(--sage);
-  }
-
-  /* ---------- RSVP ---------- */
-  .rsvp-title{
-    font-family:'Cormorant Garamond',serif;
-    font-size:1.6rem;
-    margin-bottom:12px;
-  }
-  .rsvp-text{
-    font-size:0.95rem;
-    color:var(--brown);
-    margin-bottom:24px;
-    line-height:1.7;
-  }
-  .rsvp-btn{
-    display:inline-block;
-    background:var(--rose);
-    color:#fff;
-    text-decoration:none;
-    font-family:'Jost',sans-serif;
-    font-size:0.95rem;
-    letter-spacing:0.03em;
-    padding:16px 40px;
-    border-radius:30px;
-    transition:background 0.2s ease, transform 0.2s ease;
-  }
-  .rsvp-btn:hover{
-    background:#7C3D84;
-    transform:translateY(-1px);
-  }
-  .rsvp-frame-wrap{
-    width:100%;
-    max-width:460px;
-    margin:26px auto 0;
-    border-radius:10px;
-    overflow:hidden;
-    box-shadow:0 10px 28px rgba(59,42,70,0.15);
-  }
-  .rsvp-frame-wrap iframe{
-    width:100%;
-    height:920px;
-    border:none;
-    display:block;
-    background:var(--ivory);
-  }
-  .rsvp-fallback{
-    display:inline-block;
-    margin-top:16px;
-    font-size:0.82rem;
-    color:var(--sage);
-    text-decoration:underline;
-  }
-
-  /* ---------- FOOTER ---------- */
-  footer{
-    padding:40px 24px 48px;
-    background:var(--ivory);
-  }
-  footer svg{
-    width:120px;
-    margin:0 auto 16px;
-    display:block;
-  }
-  footer p{
-    font-family:'Cormorant Garamond',serif;
-    font-style:italic;
-    font-size:1.15rem;
-    color:var(--brown);
-    margin:0;
-  }
-
-  @media (max-width:420px){
-    .hero-names{font-size:2.1rem;}
-    section{padding:44px 20px;}
-    .countdown div{min-width:56px;padding:12px 6px;}
-  }
-
-  @media (prefers-reduced-motion: reduce){
-    *{transition:none !important;}
-    .petal{display:none;}
-  }
-
-  /* ---------- PETALES FLOTTANTS ---------- */
-  .petals{
-    position:fixed;
-    inset:0;
-    z-index:998;
-    pointer-events:none;
-    overflow:hidden;
-  }
-  .petal{
-    position:absolute;
-    top:-6%;
-    width:14px;
-    height:17px;
-    background:var(--rose);
-    border-radius:0 100% 0 100%;
-    opacity:0.55;
-    animation-name:petalFall;
-    animation-timing-function:linear;
-    animation-iteration-count:infinite;
-    will-change:transform;
-  }
-  .petal.alt{ background:var(--rose-soft); }
-  .petal.leaf{ background:var(--sage); opacity:0.4; border-radius:0 100% 0 100% / 0 100% 0 100%; }
-
-  @keyframes petalFall{
-    0%{ transform:translate(0,0) rotate(0deg); }
-    50%{ transform:translate(18px,55vh) rotate(170deg); }
-    100%{ transform:translate(-16px,112vh) rotate(340deg); }
-  }
-
-  /* ---------- ENVELOPPE D'OUVERTURE (carte deux volets) ---------- */
-  body.locked{ overflow:hidden; }
-
-  .envelope-overlay{
-    position:fixed;
-    inset:0;
-    z-index:1000;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:24px;
-    background:linear-gradient(160deg, var(--ivory) 0%, var(--ivory-deep) 100%);
-    transition:opacity 0.7s ease;
-  }
-  .envelope-overlay.hidden{
-    opacity:0;
-    pointer-events:none;
-  }
-  .envelope-names{
-    font-family:'Cormorant Garamond',serif;
-    font-size:1.5rem;
-    color:var(--brown);
-    text-align:center;
-  }
-  .envelope-scene{
-    perspective:1600px;
-  }
-  .envelope{
-    position:relative;
-    width:230px;
-    height:340px;
-    cursor:pointer;
-  }
-  .env-letter{
-    position:absolute;
-    inset:0;
-    background:var(--ivory);
-    border:1px solid var(--gold);
-    border-radius:4px;
-    z-index:1;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    font-family:'Cormorant Garamond',serif;
-    font-style:italic;
-    font-size:1.2rem;
-    color:var(--rose);
-    padding:20px;
-    box-shadow:0 4px 14px rgba(70,52,36,0.12);
-  }
-  .env-panel{
-    position:absolute;
-    top:0;
-    width:50%;
-    height:100%;
-    background:var(--ivory);
-    overflow:hidden;
-    box-shadow:0 10px 30px rgba(70,52,36,0.2);
-    z-index:3;
-    transition:transform 1s cubic-bezier(.6,0,.25,1);
-    backface-visibility:hidden;
-  }
-  .env-panel-left{
-    left:0;
-    border-radius:6px 0 0 6px;
-    transform-origin:left center;
-  }
-  .env-panel-right{
-    right:0;
-    border-radius:0 6px 6px 0;
-    transform-origin:right center;
-  }
-  .env-panel svg{
-    position:absolute;
-    width:100%;
-    height:100%;
-  }
-  .env-panel-left svg{ top:0; left:0; }
-  .env-panel-right svg{ bottom:0; right:0; transform:rotate(180deg); }
-
-  .envelope.open .env-panel-left{ transform:rotateY(-115deg); }
-  .envelope.open .env-panel-right{ transform:rotateY(115deg); }
-
-  .env-seal-wrap{
-    position:absolute;
-    left:50%; top:50%;
-    transform:translate(-50%,-50%);
-    width:60px; height:56px;
-    z-index:5;
-  }
-  .env-seal-half{
-    position:absolute;
-    top:0; left:0;
-    width:60px; height:56px;
-    transition:transform 0.5s ease-out, opacity 0.5s ease-out;
-  }
-  .env-seal-half.env-seal-left{ clip-path:inset(0 30px 0 0); transform-origin:12px 28px; }
-  .env-seal-half.env-seal-right{ clip-path:inset(0 0 0 30px); transform-origin:48px 28px; }
-  .env-seal-blob{
-    position:absolute;
-    inset:2px;
-    border-radius:46% 54% 55% 45% / 48% 42% 58% 52%;
-    background:radial-gradient(circle at 35% 30%, #F6DE8B 0%, var(--gold) 55%, #8A6A15 100%);
-    box-shadow:0 4px 10px rgba(0,0,0,0.3), inset 0 -3px 5px rgba(0,0,0,0.25), inset 0 2px 4px rgba(255,255,255,0.4);
-  }
-  .env-seal-disc{
-    position:absolute;
-    left:50%; top:50%;
-    transform:translate(-50%,-50%);
-    width:66%; height:66%;
-    border-radius:50%;
-    background:radial-gradient(circle at 40% 35%, #EFCB6C 0%, #C99A2E 70%, #8A6A15 100%);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    box-shadow:inset 0 2px 3px rgba(255,255,255,0.35), inset 0 -2px 4px rgba(0,0,0,0.35);
-    font-family:'Cormorant Garamond',serif;
-    font-style:italic;
-    color:#5b430e;
-    font-size:0.85rem;
-  }
-  .envelope.open .env-seal-left{
-    transform:translate(-16px,-10px) rotate(-25deg);
-    opacity:0;
-  }
-  .envelope.open .env-seal-right{
-    transform:translate(16px,10px) rotate(25deg);
-    opacity:0;
-  }
-  .envelope-hint{
-    font-size:0.85rem;
-    letter-spacing:0.04em;
-    color:var(--sage);
-    animation:envPulse 1.8s ease-in-out infinite;
-  }
-  @keyframes envPulse{
-    0%,100%{opacity:0.55;}
-    50%{opacity:1;}
-  }
-  @media (prefers-reduced-motion: reduce){
-    .envelope-hint{animation:none;}
-  }
-</style>
-</head>
-<body class="locked">
-
-<div class="petals" aria-hidden="true">
-  <div class="petal" style="left:4%; animation-duration:12s; animation-delay:-1s;"></div>
-  <div class="petal alt" style="left:14%; animation-duration:16s; animation-delay:-6s; transform:scale(0.8);"></div>
-  <div class="petal leaf" style="left:24%; animation-duration:14s; animation-delay:-3s; transform:scale(1.1);"></div>
-  <div class="petal" style="left:36%; animation-duration:10s; animation-delay:-8s; transform:scale(0.9);"></div>
-  <div class="petal alt" style="left:48%; animation-duration:18s; animation-delay:-2s;"></div>
-  <div class="petal" style="left:58%; animation-duration:13s; animation-delay:-10s; transform:scale(1.2);"></div>
-  <div class="petal leaf" style="left:68%; animation-duration:15s; animation-delay:-5s; transform:scale(0.85);"></div>
-  <div class="petal alt" style="left:78%; animation-duration:11s; animation-delay:-7s;"></div>
-  <div class="petal" style="left:88%; animation-duration:17s; animation-delay:-4s; transform:scale(1.05);"></div>
-  <div class="petal leaf" style="left:94%; animation-duration:12.5s; animation-delay:-9s; transform:scale(0.75);"></div>
-  <div class="petal alt" style="left:9%; animation-duration:19s; animation-delay:-12s; transform:scale(1.15);"></div>
-  <div class="petal" style="left:63%; animation-duration:9.5s; animation-delay:-2.5s; transform:scale(0.7);"></div>
-</div>
-
-<div class="envelope-overlay" id="envelope-overlay">
-  <p class="envelope-names">Manuela &amp; Elizée</p>
-  <div class="envelope-scene">
-    <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Ouvrir l'invitation">
-      <div class="env-letter">Vous êtes invité(e)<br>à notre mariage</div>
-
-      <div class="env-panel env-panel-left">
-        <svg viewBox="0 0 115 340" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M8 10 Q45 25 38 65 Q32 100 60 118" stroke="var(--gold)" stroke-width="1.3" fill="none" opacity="0.55"/>
-          <ellipse cx="14" cy="18" rx="8" ry="3.4" fill="var(--gold)" opacity="0.5" transform="rotate(35 14 18)"/>
-          <ellipse cx="26" cy="30" rx="7" ry="3" fill="var(--gold)" opacity="0.45" transform="rotate(15 26 30)"/>
-          <ellipse cx="36" cy="48" rx="7" ry="3" fill="var(--gold)" opacity="0.45" transform="rotate(-10 36 48)"/>
-          <ellipse cx="34" cy="70" rx="6.5" ry="3" fill="var(--gold)" opacity="0.4" transform="rotate(-35 34 70)"/>
-          <ellipse cx="48" cy="95" rx="6" ry="2.8" fill="var(--gold)" opacity="0.35" transform="rotate(-55 48 95)"/>
-        </svg>
-      </div>
-
-      <div class="env-panel env-panel-right">
-        <svg viewBox="0 0 115 340" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M8 10 Q45 25 38 65 Q32 100 60 118" stroke="var(--gold)" stroke-width="1.3" fill="none" opacity="0.55"/>
-          <ellipse cx="14" cy="18" rx="8" ry="3.4" fill="var(--gold)" opacity="0.5" transform="rotate(35 14 18)"/>
-          <ellipse cx="26" cy="30" rx="7" ry="3" fill="var(--gold)" opacity="0.45" transform="rotate(15 26 30)"/>
-          <ellipse cx="36" cy="48" rx="7" ry="3" fill="var(--gold)" opacity="0.45" transform="rotate(-10 36 48)"/>
-          <ellipse cx="34" cy="70" rx="6.5" ry="3" fill="var(--gold)" opacity="0.4" transform="rotate(-35 34 70)"/>
-          <ellipse cx="48" cy="95" rx="6" ry="2.8" fill="var(--gold)" opacity="0.35" transform="rotate(-55 48 95)"/>
-        </svg>
-      </div>
-
-      <div class="env-seal-wrap">
-        <div class="env-seal-half env-seal-left">
-          <div class="env-seal-blob"></div>
-          <div class="env-seal-disc">M&amp;E</div>
-        </div>
-        <div class="env-seal-half env-seal-right">
-          <div class="env-seal-blob"></div>
-          <div class="env-seal-disc">M&amp;E</div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <p class="envelope-hint">Touchez le cachet pour l'ouvrir</p>
-</div>
-
-<div class="page">
-
-  <!-- ================= HERO ================= -->
-  <section class="hero">
-    <svg viewBox="0 0 440 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <!-- branche gauche -->
-      <g>
-        <path d="M15 95 Q 60 40, 150 30" stroke="#748156" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <ellipse cx="45" cy="55" rx="11" ry="4.5" fill="#748156" transform="rotate(-40 45 55)"/>
-        <ellipse cx="75" cy="38" rx="10" ry="4" fill="#8DBE55" transform="rotate(-15 75 38)"/>
-        <ellipse cx="110" cy="30" rx="8" ry="3.5" fill="#748156" transform="rotate(5 110 30)"/>
-        <g transform="translate(28,88)">
-          <g transform="rotate(0)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#9C4FA6"/></g>
-          <g transform="rotate(72)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#9C4FA6"/></g>
-          <g transform="rotate(144)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#9C4FA6"/></g>
-          <g transform="rotate(216)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#9C4FA6"/></g>
-          <g transform="rotate(288)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#9C4FA6"/></g>
-          <circle r="4.5" fill="#DBA829"/>
-        </g>
-        <g transform="translate(55,68)">
-          <g transform="rotate(20)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E6AEE8"/></g>
-          <g transform="rotate(92)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E6AEE8"/></g>
-          <g transform="rotate(164)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E6AEE8"/></g>
-          <g transform="rotate(236)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E6AEE8"/></g>
-          <g transform="rotate(308)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E6AEE8"/></g>
-          <circle r="3" fill="#9C4FA6"/>
-        </g>
-        <circle cx="95" cy="42" r="3.5" fill="#DBA829"/>
-      </g>
-      <!-- branche droite (miroir) -->
-      <g transform="translate(440,0) scale(-1,1)">
-        <path d="M15 95 Q 60 40, 150 30" stroke="#748156" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <ellipse cx="45" cy="55" rx="11" ry="4.5" fill="#748156" transform="rotate(-40 45 55)"/>
-        <ellipse cx="75" cy="38" rx="10" ry="4" fill="#8DBE55" transform="rotate(-15 75 38)"/>
-        <ellipse cx="110" cy="30" rx="8" ry="3.5" fill="#748156" transform="rotate(5 110 30)"/>
-        <g transform="translate(28,88)">
-          <g transform="rotate(0)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#9C4FA6"/></g>
-          <g transform="rotate(72)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#9C4FA6"/></g>
-          <g transform="rotate(144)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#9C4FA6"/></g>
-          <g transform="rotate(216)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#9C4FA6"/></g>
-          <g transform="rotate(288)"><ellipse cx="0" cy="-10" rx="6" ry="9" fill="#9C4FA6"/></g>
-          <circle r="4.5" fill="#DBA829"/>
-        </g>
-        <g transform="translate(55,68)">
-          <g transform="rotate(20)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E6AEE8"/></g>
-          <g transform="rotate(92)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E6AEE8"/></g>
-          <g transform="rotate(164)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E6AEE8"/></g>
-          <g transform="rotate(236)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E6AEE8"/></g>
-          <g transform="rotate(308)"><ellipse cx="0" cy="-6" rx="4" ry="6" fill="#E6AEE8"/></g>
-          <circle r="3" fill="#9C4FA6"/>
-        </g>
-        <circle cx="95" cy="42" r="3.5" fill="#DBA829"/>
+function FloralCorner({ className = "" }) {
+  return (
+    <svg className={className} viewBox="0 0 240 240" fill="none" aria-hidden="true">
+      <path d="M10 218C61 174 70 88 187 19" stroke="currentColor" strokeWidth="1.1" />
+      <path d="M54 176c-8-26 2-40 27-44-1 25-10 39-27 44ZM84 124c-5-25 7-39 31-40-3 23-14 36-31 40ZM125 77c-1-22 13-33 34-29-7 19-19 29-34 29Z" fill="currentColor" opacity=".42" />
+      <path d="M23 204c24-3 37 8 39 31-23-2-36-12-39-31ZM66 157c24-4 37 7 40 30-23-1-36-11-40-30ZM105 105c23-3 35 8 37 29-21-1-33-11-37-29Z" fill="currentColor" opacity=".25" />
+      <g transform="translate(179 21)">
+        {[0,72,144,216,288].map(r => <ellipse key={r} rx="10" ry="22" cy="-18" transform={`rotate(${r})`} fill="currentColor" opacity=".55" />)}
+        <circle r="7" fill="#C6A46A" />
       </g>
     </svg>
+  );
+}
 
-    <p class="hero-sub">Le mariage de</p>
-    <h1 class="hero-names">Manuela<span class="hero-amp">&amp;</span>Elizée</h1>
-    <p class="hero-date">Samedi 19 décembre 2026</p>
-  </section>
-
-  <!-- ================= NOCES DE CANA (clin d'œil subtil, texte seul) ================= -->
-  <section class="cana">
-    <p class="cana-text">
-      Comme aux noces de Cana, que la joie coule à flots et que
-      cette union soit bénie d'abondance.
-      <span class="cana-ref">Jean 2, 1-11</span>
-    </p>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- ================= MOT D'INVITATION ================= -->
-  <section>
-    <p class="invite-text">
-      C'est avec un cœur rempli de joie que nous vous invitons à partager
-      le plus beau jour de notre vie. Votre présence sera pour nous
-      <em>le plus précieux des cadeaux</em>.
-    </p>
-  </section>
-
-  <!-- ================= COMPTE A REBOURS ================= -->
-  <section class="countdown-wrap">
-    <p class="countdown-title">Il ne reste plus que...</p>
-    <div class="countdown" id="countdown">
-      <div><span class="num" id="cd-days">--</span><span class="label">jours</span></div>
-      <div><span class="num" id="cd-hours">--</span><span class="label">heures</span></div>
-      <div><span class="num" id="cd-min">--</span><span class="label">minutes</span></div>
-      <div><span class="num" id="cd-sec">--</span><span class="label">secondes</span></div>
+function SectionTitle({ kicker, children }) {
+  return (
+    <div className="mb-10 text-center">
+      {kicker && <p className="sans text-[10px] font-medium uppercase tracking-[.36em] text-[#8C9B8A]">{kicker}</p>}
+      <h2 className="serif mt-3 text-4xl font-medium leading-none text-[#5A1722] sm:text-5xl">{children}</h2>
+      <div className="mx-auto mt-5 flex items-center justify-center gap-2 text-[#C6A46A]"><span className="h-px w-10 bg-current"/><Heart size={12} fill="currentColor"/><span className="h-px w-10 bg-current"/></div>
     </div>
-  </section>
+  );
+}
 
-  <!-- ================= CEREMONIE ================= -->
-  <section>
-    <h2 class="details-title">Cérémonie &amp; Réception</h2>
-    <div class="divider"></div>
-
-    <p class="program-label">Mariage religieux</p>
-    <div class="detail-block">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l7 4v3H5V7l7-4z"/><path d="M6 10v9M18 10v9M9 19v-5h6v5"/><line x1="4" y1="21" x2="20" y2="21"/></svg>
-      <p class="label">Lieu</p>
-      <p class="value">Église Sainte Antoine de Padoue<br>Abomey-Calavi</p>
-      <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=%C3%89glise%20Sainte%20Antoine%20de%20Padoue%20Abomey-Calavi" target="_blank" rel="noopener">Voir sur la carte</a>
+function Countdown() {
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+  const diff = Math.max(0, WEDDING_DATE.getTime() - now.getTime());
+  const values = [
+    [Math.floor(diff / 86400000), "jours"],
+    [Math.floor(diff / 3600000) % 24, "heures"],
+    [Math.floor(diff / 60000) % 60, "minutes"],
+    [Math.floor(diff / 1000) % 60, "secondes"],
+  ];
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {values.map(([value, label]) => (
+        <div key={label} className="rounded-2xl border border-[#C6A46A]/25 bg-white/65 px-3 py-5 shadow-[0_12px_30px_rgba(72,41,35,.06)] backdrop-blur">
+          <span className="serif block text-4xl font-medium tabular-nums text-[#6B1F2A]">{String(value).padStart(2,"0")}</span>
+          <span className="sans mt-1 block text-[9px] uppercase tracking-[.2em] text-[#81716B]">{label}</span>
+        </div>
+      ))}
     </div>
-    <div class="detail-block">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-      <p class="label">Heure</p>
-      <p class="value">16h30</p>
+  );
+}
+
+function TimelineItem({ time, title, children, last = false }) {
+  return (
+    <div className="relative grid grid-cols-[72px_28px_1fr] gap-3 pb-10 last:pb-0">
+      <p className="serif pt-0.5 text-right text-xl text-[#6B1F2A]">{time}</p>
+      <div className="relative flex justify-center">
+        {!last && <span className="absolute left-1/2 top-3 h-[calc(100%+2rem)] w-px -translate-x-1/2 bg-[#C6A46A]/45"/>}
+        <span className="relative z-10 mt-1.5 h-3 w-3 rounded-full border-2 border-[#C6A46A] bg-[#FBF7F2] shadow-[0_0_0_5px_rgba(198,164,106,.1)]"/>
+      </div>
+      <div>
+        <h3 className="serif text-2xl text-[#342B28]">{title}</h3>
+        <div className="sans mt-2 text-sm font-light leading-6 text-[#74645E]">{children}</div>
+      </div>
     </div>
+  );
+}
 
-    <p class="program-label">Cocktail dînatoire</p>
-    <div class="detail-block">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 3h12l-6 8v9M9 21h6"/><path d="M6 3l6 8 6-8"/></svg>
-      <p class="label">Lieu</p>
-      <p class="value">Lieu à préciser</p>
-    </div>
-    <div class="detail-block">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-      <p class="label">Heure</p>
-      <p class="value">À préciser</p>
-    </div>
-  </section>
+function Field({ label, children, optional }) {
+  return <label className="block"><span className="sans mb-2 block text-[10px] font-medium uppercase tracking-[.18em] text-[#675852]">{label} {optional && <i className="font-light normal-case tracking-normal text-[#A3958E]">(optionnel)</i>}</span>{children}</label>;
+}
 
-  <!-- ================= DRESS CODE ================= -->
-  <section>
-    <h2 class="details-title">Dress code</h2>
-    <div class="divider"></div>
-    <p class="invite-text">
-      Nous serions ravis de vous voir porter des tenues élégantes,
-      dans les tons de notre thème : violet, vert et beige.
-    </p>
-    <div class="dresscode-swatches" aria-hidden="true">
-      <span style="background:#9C4FA6;"></span>
-      <span style="background:#6FA050;"></span>
-      <span style="background:#F6E9C8; border:1px solid #DBA829;"></span>
-    </div>
-  </section>
+const inputClass = "sans w-full rounded-xl border border-[#D8CBC3] bg-white/75 px-4 py-3.5 text-sm text-[#342B28] outline-none transition placeholder:text-[#B5AAA5] focus:border-[#6B1F2A] focus:ring-2 focus:ring-[#6B1F2A]/10";
 
-  <!-- ================= CADEAU ================= -->
-  <section class="countdown-wrap">
-    <h2 class="details-title">Une pensée pour nous</h2>
-    <div class="divider"></div>
-    <p class="invite-text">
-      Votre présence est déjà le plus beau des cadeaux. Si vous
-      souhaitez néanmoins nous gâter, vous pouvez participer à notre
-      cagnotte via Mobile Money :
-    </p>
-    <div class="detail-block">
-      <p class="label">Opérateur</p>
-      <!-- Remplace par ex: MTN Mobile Money -->
-      <p class="value">À compléter</p>
-    </div>
-    <div class="detail-block">
-      <p class="label">Numéro</p>
-      <!-- Remplace par le numéro Mobile Money -->
-      <p class="value">À compléter</p>
-    </div>
-    <div class="detail-block">
-      <p class="label">Nom du titulaire</p>
-      <!-- Remplace par le nom du titulaire du compte -->
-      <p class="value">À compléter</p>
-    </div>
-  </section>
+export default function WeddingInvitation() {
+  const [opened, setOpened] = useState(false);
+  const [overlayGone, setOverlayGone] = useState(false);
+  const [music, setMusic] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [attendance, setAttendance] = useState("yes");
+  const [form, setForm] = useState({ name: "", phone: "", guests: "0", diet: "", message: "" });
 
-  <!-- ================= RSVP ================= -->
-  <section>
-    <h2 class="rsvp-title">Confirmez votre présence</h2>
-    <p class="rsvp-text">Merci de nous répondre avant le 1er décembre 2026<br>afin que nous puissions vous accueillir comme il se doit.</p>
-    <div class="rsvp-frame-wrap">
-      <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdw35dk-EC3xtAp0cUXn1gpSaj1FsjUWFbIiiu-WO9UwQ3Rqw/viewform?embedded=true" loading="lazy" title="Formulaire de confirmation de présence">Chargement du formulaire…</iframe>
-    </div>
-    <a class="rsvp-fallback" href="https://docs.google.com/forms/d/e/1FAIpQLSdw35dk-EC3xtAp0cUXn1gpSaj1FsjUWFbIiiu-WO9UwQ3Rqw/viewform?usp=dialog" target="_blank" rel="noopener">Le formulaire ne s'affiche pas ? Ouvrir dans un nouvel onglet</a>
-  </section>
+  const thanks = useMemo(() => attendance === "yes"
+    ? `Merci${form.name ? `, ${form.name}` : ""}. Nous sommes heureux de vous compter parmi nous.`
+    : `Merci${form.name ? `, ${form.name}` : ""}. Votre réponse a bien été enregistrée.`, [attendance, form.name]);
 
-  <!-- ================= FOOTER ================= -->
-  <footer>
-    <svg viewBox="0 0 120 30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M10 15 Q 60 0, 110 15" stroke="#DBA829" stroke-width="1" fill="none"/>
-      <circle cx="60" cy="10" r="3" fill="#9C4FA6"/>
-    </svg>
-    <p>Avec amour, Manuela &amp; Elizée</p>
-  </footer>
-
-</div>
-
-<script>
-  // Date du mariage : 19 décembre 2026, 16h30 (heure locale de la page)
-  const weddingDate = new Date("2026-12-19T16:30:00");
-
-  function updateCountdown(){
-    const now = new Date();
-    let diff = weddingDate - now;
-
-    if(diff <= 0){
-      document.getElementById('countdown').innerHTML =
-        '<p style="font-family:\'Cormorant Garamond\',serif; font-size:1.4rem;">C\'est aujourd\'hui ! 🎉</p>';
-      return;
-    }
-
-    const days = Math.floor(diff / (1000*60*60*24));
-    diff -= days * (1000*60*60*24);
-    const hours = Math.floor(diff / (1000*60*60));
-    diff -= hours * (1000*60*60);
-    const minutes = Math.floor(diff / (1000*60));
-    diff -= minutes * (1000*60);
-    const seconds = Math.floor(diff / 1000);
-
-    document.getElementById('cd-days').textContent = days;
-    document.getElementById('cd-hours').textContent = String(hours).padStart(2,'0');
-    document.getElementById('cd-min').textContent = String(minutes).padStart(2,'0');
-    document.getElementById('cd-sec').textContent = String(seconds).padStart(2,'0');
+  function openInvitation() {
+    if (opened) return;
+    setOpened(true);
+    setTimeout(() => setOverlayGone(true), 1250);
   }
 
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
-
-  // ----- Ouverture de l'enveloppe -----
-  const envelope = document.getElementById('envelope');
-  const envelopeOverlay = document.getElementById('envelope-overlay');
-  let envelopeOpened = false;
-
-  function openEnvelope(){
-    if(envelopeOpened) return;
-    envelopeOpened = true;
-    envelope.classList.add('open');
-    document.body.classList.remove('locked');
-    setTimeout(() => {
-      envelopeOverlay.classList.add('hidden');
-    }, 1300);
+  function update(key, value) { setForm(p => ({ ...p, [key]: value })); }
+  function submit(e) { e.preventDefault(); setSubmitted(true); }
+  function copyNumber() {
+    navigator.clipboard?.writeText("À compléter");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
   }
 
-  envelope.addEventListener('click', openEnvelope);
-  envelope.addEventListener('keydown', function(e){
-    if(e.key === 'Enter' || e.key === ' '){
-      e.preventDefault();
-      openEnvelope();
-    }
-  });
-</script>
+  return (
+    <main className="min-h-screen overflow-x-hidden bg-[#EEE6DE] text-[#342B28] selection:bg-[#6B1F2A]/20">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Jost:wght@300;400;500&display=swap');
+        .serif{font-family:'Cormorant Garamond',Georgia,serif}.sans{font-family:'Jost',Arial,sans-serif}
+        html{scroll-behavior:smooth}.petal{position:absolute;top:-8%;width:9px;height:14px;border-radius:90% 10% 80% 20%;background:#A85B67;opacity:.22;animation:fall linear infinite}
+        @keyframes fall{0%{transform:translate3d(0,-5vh,0) rotate(0);opacity:0}14%{opacity:.25}50%{transform:translate3d(18px,52vh,0) rotate(150deg)}100%{transform:translate3d(-12px,110vh,0) rotate(320deg);opacity:0}}
+        @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.petals{display:none}}
+      `}</style>
 
-</body>
-</html>
+      <AnimatePresence>
+        {!overlayGone && (
+          <motion.div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,#FBF7F2_0%,#EEE4D9_75%)] px-5" exit={{ opacity: 0 }} transition={{ duration: .7 }}>
+            <FloralCorner className="absolute -left-16 -top-16 h-64 w-64 rotate-180 text-[#6B1F2A]/15"/>
+            <FloralCorner className="absolute -bottom-16 -right-16 h-64 w-64 text-[#6B1F2A]/15"/>
+            <div className="text-center">
+              <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="sans mb-8 text-[10px] uppercase tracking-[.42em] text-[#8C9B8A]">Invitation au mariage</motion.p>
+              <div className="mx-auto [perspective:1600px]">
+                <button onClick={openInvitation} aria-label="Ouvrir l’invitation" className={`relative block h-[330px] w-[230px] bg-transparent outline-none ${opened ? "pointer-events-none" : "cursor-pointer"}`}>
+                  <div className="absolute inset-0 flex items-center justify-center rounded-md border border-[#C6A46A]/60 bg-[#FFFDF9] p-7 shadow-xl">
+                    <p className="serif text-2xl italic text-[#6B1F2A]">Vous êtes invité(e)<br/><span className="text-lg text-[#7B6C66]">à célébrer notre union</span></p>
+                  </div>
+                  <motion.div animate={opened ? { rotateY: -112 } : { rotateY: 0 }} transition={{ duration: 1, ease: [.6,0,.25,1] }} style={{ transformOrigin: "left center", backfaceVisibility: "hidden" }} className="absolute inset-y-0 left-0 z-10 w-1/2 overflow-hidden rounded-l-md border-y border-l border-[#D9C8B0] bg-[#FBF7F2] shadow-lg">
+                    <FloralCorner className="absolute -left-12 -top-10 h-48 w-48 rotate-180 text-[#C6A46A]/50"/>
+                  </motion.div>
+                  <motion.div animate={opened ? { rotateY: 112 } : { rotateY: 0 }} transition={{ duration: 1, ease: [.6,0,.25,1] }} style={{ transformOrigin: "right center", backfaceVisibility: "hidden" }} className="absolute inset-y-0 right-0 z-10 w-1/2 overflow-hidden rounded-r-md border-y border-r border-[#D9C8B0] bg-[#FBF7F2] shadow-lg">
+                    <FloralCorner className="absolute -bottom-10 -right-12 h-48 w-48 text-[#C6A46A]/50"/>
+                  </motion.div>
+                  <motion.div animate={opened ? { opacity: 0, scale: .5, rotate: 45 } : { opacity: 1, scale: 1 }} transition={{ duration: .5 }} className="absolute left-1/2 top-1/2 z-20 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-[48%_52%_46%_54%] bg-[radial-gradient(circle_at_35%_25%,#E4C47F,#B4883E_68%,#795A26)] shadow-[0_5px_12px_rgba(40,20,8,.28),inset_0_2px_3px_rgba(255,255,255,.45)]">
+                    <span className="serif flex h-11 w-11 items-center justify-center rounded-full border border-[#745421]/50 text-xl italic text-[#5D431D]">M&E</span>
+                  </motion.div>
+                </button>
+              </div>
+              <p className="serif mt-7 text-3xl text-[#5A1722]">Manuela & Elizée</p>
+              <motion.p animate={{ opacity: [.45,1,.45] }} transition={{ repeat: Infinity, duration: 2 }} className="sans mt-3 text-[10px] uppercase tracking-[.22em] text-[#81716B]">Touchez le sceau pour découvrir l’invitation</motion.p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="petals pointer-events-none fixed inset-0 z-40 overflow-hidden" aria-hidden="true">
+        {[5,17,29,43,57,69,82,94].map((left,i)=><i key={left} className="petal" style={{left:`${left}%`,animationDuration:`${12+i*1.7}s`,animationDelay:`-${i*2.4}s`,background:i%3===0?'#8C9B8A':'#A85B67'}}/>)}
+      </div>
+
+      <div className="relative mx-auto max-w-[680px] overflow-hidden bg-[#FBF7F2] shadow-[0_0_80px_rgba(47,30,26,.15)]">
+        <button onClick={()=>setMusic(!music)} aria-label={music?"Couper la musique":"Activer la musique"} className="fixed right-4 top-4 z-30 flex h-11 w-11 items-center justify-center rounded-full border border-[#C6A46A]/30 bg-[#FFFDF9]/85 text-[#6B1F2A] shadow-lg backdrop-blur transition hover:scale-105">
+          {music?<Music2 size={17}/>:<VolumeX size={17}/>}<span className="sr-only">Musique</span>
+        </button>
+
+        <header className="relative flex min-h-[92vh] items-end overflow-hidden bg-[#DDD0C4] px-7 pb-14 pt-28 text-center sm:px-12">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,.75),transparent_38%),linear-gradient(160deg,#D8CCC1,#F8F1EA_48%,#C4B4A7)]"/>
+          <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#291B19]/70 via-[#291B19]/15 to-transparent"/>
+          <FloralCorner className="absolute -right-16 -top-10 h-72 w-72 text-[#6B1F2A]/25"/>
+          <FloralCorner className="absolute -bottom-14 -left-14 h-64 w-64 rotate-180 text-[#F5EBDD]/25"/>
+          <motion.div initial={{opacity:0,y:26}} animate={{opacity:1,y:0}} transition={{duration:1}} className="relative z-10 mx-auto w-full text-[#FFFDF9]">
+            <p className="sans text-[10px] uppercase tracking-[.42em]">Le mariage de</p>
+            <h1 className="serif mt-7 text-6xl font-medium leading-[.82] tracking-[-.04em] sm:text-7xl">Manuela<span className="my-5 block text-4xl italic text-[#E2C489]">&</span>Elizée</h1>
+            <div className="mx-auto my-8 h-px w-20 bg-[#E2C489]"/>
+            <p className="serif text-2xl">Samedi 19 décembre 2026</p>
+            <p className="sans mt-4 text-[10px] uppercase tracking-[.28em] text-white/80">Abomey-Calavi</p>
+            <button onClick={()=>document.getElementById('rsvp')?.scrollIntoView({behavior:'smooth'})} className="sans mt-9 rounded-full border border-white/65 bg-white/10 px-7 py-3.5 text-[10px] font-medium uppercase tracking-[.2em] backdrop-blur transition hover:bg-white hover:text-[#6B1F2A]">Confirmer ma présence</button>
+          </motion.div>
+        </header>
+
+        <section className="relative px-7 py-20 text-center sm:px-14 sm:py-24">
+          <p className="serif mx-auto max-w-lg text-2xl italic leading-relaxed text-[#6B1F2A]">« L’amour est patient, l’amour est plein de bonté. »</p>
+          <p className="sans mt-3 text-[9px] uppercase tracking-[.25em] text-[#8C9B8A]">1 Corinthiens 13:4</p>
+          <div className="mx-auto my-10 h-px w-14 bg-[#C6A46A]/70"/>
+          <p className="sans mx-auto max-w-lg whitespace-pre-line text-[15px] font-light leading-8 text-[#665650]">Après avoir marché côte à côte, partagé nos joies, nos rêves et nos projets, nous avons choisi d’unir nos vies devant Dieu et devant ceux qui nous sont chers.{`\n\n`}C’est avec une immense émotion que nous vous invitons à célébrer avec nous ce jour unique.{`\n\n`}Votre présence sera pour nous un précieux témoignage d’affection et contribuera à rendre cette journée inoubliable.</p>
+        </section>
+
+        <section className="bg-[#F1E8DF] px-6 py-16 text-center sm:px-12">
+          <SectionTitle kicker="Le grand jour approche">Nous avons hâte de vous retrouver</SectionTitle>
+          <Countdown/>
+        </section>
+
+        <section className="px-7 py-20 sm:px-14">
+          <SectionTitle kicker="Notre chemin">Notre histoire</SectionTitle>
+          <div className="mx-auto max-w-md">
+            {[['2019','Notre première rencontre'],['2022','Nos premiers grands projets'],['2025','La demande'],['2026','Le grand jour']].map(([year,text],i)=>(
+              <div key={year} className="relative grid grid-cols-[70px_24px_1fr] gap-3 pb-9 last:pb-0">
+                <span className="serif text-right text-xl text-[#6B1F2A]">{year}</span>
+                <span className="relative flex justify-center"><i className="mt-2 h-2.5 w-2.5 rounded-full bg-[#C6A46A]"/>{i<3&&<i className="absolute left-1/2 top-4 h-full w-px -translate-x-1/2 bg-[#C6A46A]/40"/>}</span>
+                <p className="sans pt-1 text-sm font-light text-[#6B5C56]">{text}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="relative overflow-hidden bg-[#6B1F2A] px-8 py-16 text-center text-[#FFF9F2]">
+          <Sparkles className="mx-auto text-[#D9BD82]" size={20}/>
+          <p className="serif mx-auto mt-6 max-w-md text-2xl italic leading-relaxed">Comme aux noces de Cana, que cette union soit bénie d’abondance, de joie et de fidélité.</p>
+          <p className="sans mt-4 text-[9px] uppercase tracking-[.25em] text-[#D9BD82]">Jean 2, 1-11</p>
+        </section>
+
+        <section className="px-7 py-20 sm:px-14">
+          <SectionTitle kicker="Samedi 19 décembre 2026">Déroulement de la journée</SectionTitle>
+          <div className="mx-auto max-w-md">
+            <TimelineItem time="16h30" title="Cérémonie religieuse"><p>Église Sainte Antoine de Padoue<br/>Abomey-Calavi</p><a href="https://www.google.com/maps/search/?api=1&query=%C3%89glise%20Sainte%20Antoine%20de%20Padoue%20Abomey-Calavi" target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-2 text-xs font-medium text-[#6B1F2A] underline decoration-[#C6A46A] underline-offset-4"><Navigation size={13}/>Voir l’itinéraire</a></TimelineItem>
+            <TimelineItem time="18h30" title="Cocktail"><p>Lieu à préciser</p></TimelineItem>
+            <TimelineItem time="20h00" title="Réception"><p>Lieu à préciser</p></TimelineItem>
+            <TimelineItem time="22h00" title="Soirée dansante" last><p>Célébrons ensemble jusqu’au bout de la nuit.</p></TimelineItem>
+          </div>
+        </section>
+
+        <section className="bg-[#F1E8DF] px-7 py-20 text-center sm:px-14">
+          <SectionTitle kicker="Élégance naturelle">Dress code</SectionTitle>
+          <p className="sans mx-auto max-w-lg text-sm font-light leading-7 text-[#6B5C56]">Nous serions heureux de vous voir vêtus dans les couleurs de notre célébration afin de créer une harmonie élégante tout au long de cette journée.</p>
+          <div className="mt-10 grid grid-cols-3 gap-3">
+            {colors.map(c=><div key={c.name} className="overflow-hidden rounded-2xl border border-[#C6A46A]/20 bg-white shadow-sm"><div className="h-28 sm:h-36" style={{background:`linear-gradient(135deg,${c.value},${c.value}cc)`}}/><p className="sans py-4 text-[9px] font-medium uppercase tracking-[.2em] text-[#5C4E48]">{c.name}</p></div>)}
+          </div>
+        </section>
+
+        <section className="px-7 py-20 text-center sm:px-14">
+          <SectionTitle kicker="Une pensée pour nous">Notre projet de vie</SectionTitle>
+          <Gift className="mx-auto text-[#C6A46A]" size={27} strokeWidth={1.2}/>
+          <p className="sans mx-auto mt-6 max-w-lg text-sm font-light leading-7 text-[#6B5C56]">Votre présence représente déjà le plus beau des cadeaux. Pour ceux qui souhaitent nous accompagner davantage dans le début de cette nouvelle aventure, une participation pourra être effectuée via Mobile Money.</p>
+          <div className="mx-auto mt-9 max-w-sm rounded-2xl border border-[#C6A46A]/25 bg-[#FFFDF9] p-6 shadow-[0_14px_35px_rgba(70,40,34,.07)]">
+            <p className="sans text-[9px] uppercase tracking-[.22em] text-[#8C9B8A]">Mobile Money</p><p className="serif mt-3 text-2xl text-[#6B1F2A]">À compléter</p><p className="sans mt-1 text-xs text-[#8B7C75]">Titulaire : à compléter</p>
+            <button onClick={copyNumber} className="sans mt-5 inline-flex items-center gap-2 rounded-full bg-[#6B1F2A] px-5 py-3 text-[9px] font-medium uppercase tracking-[.18em] text-white"><Copy size={13}/>{copied?'Copié':'Copier le numéro'}</button>
+          </div>
+        </section>
+
+        <section id="rsvp" className="bg-[#F1E8DF] px-6 py-20 sm:px-12">
+          <SectionTitle kicker="Avant le 1er décembre 2026">Confirmez votre présence</SectionTitle>
+          <div className="mx-auto max-w-md rounded-[28px] border border-white bg-[#FBF7F2] p-6 shadow-[0_20px_50px_rgba(63,38,32,.09)] sm:p-9">
+            <AnimatePresence mode="wait">
+              {!submitted ? <motion.form key="form" onSubmit={submit} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0,y:-8}} className="space-y-6">
+                <Field label="Nom et prénom *"><input required className={inputClass} value={form.name} onChange={e=>update('name',e.target.value)} placeholder="Votre nom complet"/></Field>
+                <Field label="Téléphone *"><div className="relative"><Phone size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9B8D86]"/><input required type="tel" className={`${inputClass} pl-11`} value={form.phone} onChange={e=>update('phone',e.target.value)} placeholder="Votre numéro"/></div></Field>
+                <Field label="Présence *"><div className="grid grid-cols-1 gap-2 sm:grid-cols-2">{[['yes','Oui, avec joie'],['no','Non, à regret']].map(([id,label])=><button key={id} type="button" onClick={()=>setAttendance(id)} className={`sans rounded-xl border px-3 py-3 text-xs transition ${attendance===id?'border-[#6B1F2A] bg-[#6B1F2A] text-white':'border-[#D8CBC3] bg-white/65 text-[#675852]'}`}>{label}</button>)}</div></Field>
+                <Field label="Nombre d’accompagnants"><div className="relative"><select className={`${inputClass} appearance-none`} value={form.guests} onChange={e=>update('guests',e.target.value)}>{[0,1,2,3,4].map(n=><option key={n}>{n}</option>)}</select><ChevronDown size={15} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#8D7E77]"/></div></Field>
+                <Field label="Restrictions alimentaires" optional><input className={inputClass} value={form.diet} onChange={e=>update('diet',e.target.value)} placeholder="Allergies, régime particulier…"/></Field>
+                <Field label="Message aux mariés" optional><textarea rows={4} className={`${inputClass} resize-none`} value={form.message} onChange={e=>update('message',e.target.value)} placeholder="Un mot pour nous…"/></Field>
+                <button className="sans w-full rounded-full bg-[#6B1F2A] px-6 py-4 text-[10px] font-medium uppercase tracking-[.2em] text-white shadow-lg shadow-[#6B1F2A]/15 transition hover:-translate-y-0.5 hover:bg-[#571721]">Confirmer ma présence</button>
+                <p className="sans text-center text-[9px] text-[#9A8D86]">* Champs obligatoires</p>
+              </motion.form> : <motion.div key="success" initial={{opacity:0,scale:.97}} animate={{opacity:1,scale:1}} className="flex min-h-[430px] flex-col items-center justify-center text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#6B1F2A] text-white shadow-lg"><Check size={28}/></div><h3 className="serif mt-7 text-4xl text-[#5A1722]">Merci pour votre réponse</h3><p className="sans mt-4 max-w-xs text-sm font-light leading-7 text-[#6B5C56]">{thanks}</p><button onClick={()=>setSubmitted(false)} className="sans mt-7 text-[9px] font-medium uppercase tracking-[.18em] text-[#6B1F2A] underline decoration-[#C6A46A] underline-offset-4">Modifier ma réponse</button>
+              </motion.div>}
+            </AnimatePresence>
+          </div>
+        </section>
+
+        <footer className="relative overflow-hidden bg-[#5A1722] px-7 py-16 text-center text-[#FFF9F2]">
+          <FloralCorner className="absolute -bottom-24 -right-20 h-72 w-72 text-white/5"/>
+          <p className="serif mx-auto max-w-md text-xl italic leading-relaxed">« Ce que Dieu a uni, que l’homme ne le sépare pas. »</p>
+          <p className="sans mt-3 text-[9px] uppercase tracking-[.22em] text-[#D9BD82]">Matthieu 19:6</p>
+          <div className="mx-auto my-8 h-px w-16 bg-[#D9BD82]/55"/>
+          <p className="serif text-4xl">Manuela & Elizée</p>
+          <p className="sans mt-3 text-[9px] uppercase tracking-[.3em] text-white/65">19 décembre 2026</p>
+          <p className="serif mt-8 text-lg italic text-[#EADCCB]">Avec toute notre affection</p>
+        </footer>
+      </div>
+    </main>
+  );
+}
