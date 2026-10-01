@@ -1,266 +1,47 @@
-
-import React, { useEffect, useMemo, useState } from "react";
-import { CalendarDays, Check, ChevronDown, Clock3, Copy, Gift, Heart, MapPin, Music2, Navigation, Phone, Sparkles, VolumeX } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
-
-const WEDDING_DATE = new Date("2026-12-19T16:30:00+01:00");
-const colors = [
-  { name: "Bordeaux", value: "#6B1F2A" },
-  { name: "Sauge", value: "#8C9B8A" },
-  { name: "Ivoire", value: "#F5EBDD" },
-];
-
-function FloralCorner({ className = "" }) {
-  return (
-    <svg className={className} viewBox="0 0 240 240" fill="none" aria-hidden="true">
-      <path d="M10 218C61 174 70 88 187 19" stroke="currentColor" strokeWidth="1.1" />
-      <path d="M54 176c-8-26 2-40 27-44-1 25-10 39-27 44ZM84 124c-5-25 7-39 31-40-3 23-14 36-31 40ZM125 77c-1-22 13-33 34-29-7 19-19 29-34 29Z" fill="currentColor" opacity=".42" />
-      <path d="M23 204c24-3 37 8 39 31-23-2-36-12-39-31ZM66 157c24-4 37 7 40 30-23-1-36-11-40-30ZM105 105c23-3 35 8 37 29-21-1-33-11-37-29Z" fill="currentColor" opacity=".25" />
-      <g transform="translate(179 21)">
-        {[0,72,144,216,288].map(r => <ellipse key={r} rx="10" ry="22" cy="-18" transform={`rotate(${r})`} fill="currentColor" opacity=".55" />)}
-        <circle r="7" fill="#C6A46A" />
-      </g>
-    </svg>
-  );
-}
-
-function SectionTitle({ kicker, children }) {
-  return (
-    <div className="mb-10 text-center">
-      {kicker && <p className="sans text-[10px] font-medium uppercase tracking-[.36em] text-[#8C9B8A]">{kicker}</p>}
-      <h2 className="serif mt-3 text-4xl font-medium leading-none text-[#5A1722] sm:text-5xl">{children}</h2>
-      <div className="mx-auto mt-5 flex items-center justify-center gap-2 text-[#C6A46A]"><span className="h-px w-10 bg-current"/><Heart size={12} fill="currentColor"/><span className="h-px w-10 bg-current"/></div>
-    </div>
-  );
-}
-
-function Countdown() {
-  const [now, setNow] = useState(new Date());
-  useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-  const diff = Math.max(0, WEDDING_DATE.getTime() - now.getTime());
-  const values = [
-    [Math.floor(diff / 86400000), "jours"],
-    [Math.floor(diff / 3600000) % 24, "heures"],
-    [Math.floor(diff / 60000) % 60, "minutes"],
-    [Math.floor(diff / 1000) % 60, "secondes"],
-  ];
-  return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      {values.map(([value, label]) => (
-        <div key={label} className="rounded-2xl border border-[#C6A46A]/25 bg-white/65 px-3 py-5 shadow-[0_12px_30px_rgba(72,41,35,.06)] backdrop-blur">
-          <span className="serif block text-4xl font-medium tabular-nums text-[#6B1F2A]">{String(value).padStart(2,"0")}</span>
-          <span className="sans mt-1 block text-[9px] uppercase tracking-[.2em] text-[#81716B]">{label}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function TimelineItem({ time, title, children, last = false }) {
-  return (
-    <div className="relative grid grid-cols-[72px_28px_1fr] gap-3 pb-10 last:pb-0">
-      <p className="serif pt-0.5 text-right text-xl text-[#6B1F2A]">{time}</p>
-      <div className="relative flex justify-center">
-        {!last && <span className="absolute left-1/2 top-3 h-[calc(100%+2rem)] w-px -translate-x-1/2 bg-[#C6A46A]/45"/>}
-        <span className="relative z-10 mt-1.5 h-3 w-3 rounded-full border-2 border-[#C6A46A] bg-[#FBF7F2] shadow-[0_0_0_5px_rgba(198,164,106,.1)]"/>
-      </div>
-      <div>
-        <h3 className="serif text-2xl text-[#342B28]">{title}</h3>
-        <div className="sans mt-2 text-sm font-light leading-6 text-[#74645E]">{children}</div>
-      </div>
-    </div>
-  );
-}
-
-function Field({ label, children, optional }) {
-  return <label className="block"><span className="sans mb-2 block text-[10px] font-medium uppercase tracking-[.18em] text-[#675852]">{label} {optional && <i className="font-light normal-case tracking-normal text-[#A3958E]">(optionnel)</i>}</span>{children}</label>;
-}
-
-const inputClass = "sans w-full rounded-xl border border-[#D8CBC3] bg-white/75 px-4 py-3.5 text-sm text-[#342B28] outline-none transition placeholder:text-[#B5AAA5] focus:border-[#6B1F2A] focus:ring-2 focus:ring-[#6B1F2A]/10";
-
-export default function WeddingInvitation() {
-  const [opened, setOpened] = useState(false);
-  const [overlayGone, setOverlayGone] = useState(false);
-  const [music, setMusic] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [attendance, setAttendance] = useState("yes");
-  const [form, setForm] = useState({ name: "", phone: "", guests: "0", diet: "", message: "" });
-
-  const thanks = useMemo(() => attendance === "yes"
-    ? `Merci${form.name ? `, ${form.name}` : ""}. Nous sommes heureux de vous compter parmi nous.`
-    : `Merci${form.name ? `, ${form.name}` : ""}. Votre réponse a bien été enregistrée.`, [attendance, form.name]);
-
-  function openInvitation() {
-    if (opened) return;
-    setOpened(true);
-    setTimeout(() => setOverlayGone(true), 1250);
-  }
-
-  function update(key, value) { setForm(p => ({ ...p, [key]: value })); }
-  function submit(e) { e.preventDefault(); setSubmitted(true); }
-  function copyNumber() {
-    navigator.clipboard?.writeText("À compléter");
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
-  }
-
-  return (
-    <main className="min-h-screen overflow-x-hidden bg-[#EEE6DE] text-[#342B28] selection:bg-[#6B1F2A]/20">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Jost:wght@300;400;500&display=swap');
-        .serif{font-family:'Cormorant Garamond',Georgia,serif}.sans{font-family:'Jost',Arial,sans-serif}
-        html{scroll-behavior:smooth}.petal{position:absolute;top:-8%;width:9px;height:14px;border-radius:90% 10% 80% 20%;background:#A85B67;opacity:.22;animation:fall linear infinite}
-        @keyframes fall{0%{transform:translate3d(0,-5vh,0) rotate(0);opacity:0}14%{opacity:.25}50%{transform:translate3d(18px,52vh,0) rotate(150deg)}100%{transform:translate3d(-12px,110vh,0) rotate(320deg);opacity:0}}
-        @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.petals{display:none}}
-      `}</style>
-
-      <AnimatePresence>
-        {!overlayGone && (
-          <motion.div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,#FBF7F2_0%,#EEE4D9_75%)] px-5" exit={{ opacity: 0 }} transition={{ duration: .7 }}>
-            <FloralCorner className="absolute -left-16 -top-16 h-64 w-64 rotate-180 text-[#6B1F2A]/15"/>
-            <FloralCorner className="absolute -bottom-16 -right-16 h-64 w-64 text-[#6B1F2A]/15"/>
-            <div className="text-center">
-              <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="sans mb-8 text-[10px] uppercase tracking-[.42em] text-[#8C9B8A]">Invitation au mariage</motion.p>
-              <div className="mx-auto [perspective:1600px]">
-                <button onClick={openInvitation} aria-label="Ouvrir l’invitation" className={`relative block h-[330px] w-[230px] bg-transparent outline-none ${opened ? "pointer-events-none" : "cursor-pointer"}`}>
-                  <div className="absolute inset-0 flex items-center justify-center rounded-md border border-[#C6A46A]/60 bg-[#FFFDF9] p-7 shadow-xl">
-                    <p className="serif text-2xl italic text-[#6B1F2A]">Vous êtes invité(e)<br/><span className="text-lg text-[#7B6C66]">à célébrer notre union</span></p>
-                  </div>
-                  <motion.div animate={opened ? { rotateY: -112 } : { rotateY: 0 }} transition={{ duration: 1, ease: [.6,0,.25,1] }} style={{ transformOrigin: "left center", backfaceVisibility: "hidden" }} className="absolute inset-y-0 left-0 z-10 w-1/2 overflow-hidden rounded-l-md border-y border-l border-[#D9C8B0] bg-[#FBF7F2] shadow-lg">
-                    <FloralCorner className="absolute -left-12 -top-10 h-48 w-48 rotate-180 text-[#C6A46A]/50"/>
-                  </motion.div>
-                  <motion.div animate={opened ? { rotateY: 112 } : { rotateY: 0 }} transition={{ duration: 1, ease: [.6,0,.25,1] }} style={{ transformOrigin: "right center", backfaceVisibility: "hidden" }} className="absolute inset-y-0 right-0 z-10 w-1/2 overflow-hidden rounded-r-md border-y border-r border-[#D9C8B0] bg-[#FBF7F2] shadow-lg">
-                    <FloralCorner className="absolute -bottom-10 -right-12 h-48 w-48 text-[#C6A46A]/50"/>
-                  </motion.div>
-                  <motion.div animate={opened ? { opacity: 0, scale: .5, rotate: 45 } : { opacity: 1, scale: 1 }} transition={{ duration: .5 }} className="absolute left-1/2 top-1/2 z-20 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-[48%_52%_46%_54%] bg-[radial-gradient(circle_at_35%_25%,#E4C47F,#B4883E_68%,#795A26)] shadow-[0_5px_12px_rgba(40,20,8,.28),inset_0_2px_3px_rgba(255,255,255,.45)]">
-                    <span className="serif flex h-11 w-11 items-center justify-center rounded-full border border-[#745421]/50 text-xl italic text-[#5D431D]">M&E</span>
-                  </motion.div>
-                </button>
-              </div>
-              <p className="serif mt-7 text-3xl text-[#5A1722]">Manuela & Elizée</p>
-              <motion.p animate={{ opacity: [.45,1,.45] }} transition={{ repeat: Infinity, duration: 2 }} className="sans mt-3 text-[10px] uppercase tracking-[.22em] text-[#81716B]">Touchez le sceau pour découvrir l’invitation</motion.p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div className="petals pointer-events-none fixed inset-0 z-40 overflow-hidden" aria-hidden="true">
-        {[5,17,29,43,57,69,82,94].map((left,i)=><i key={left} className="petal" style={{left:`${left}%`,animationDuration:`${12+i*1.7}s`,animationDelay:`-${i*2.4}s`,background:i%3===0?'#8C9B8A':'#A85B67'}}/>)}
-      </div>
-
-      <div className="relative mx-auto max-w-[680px] overflow-hidden bg-[#FBF7F2] shadow-[0_0_80px_rgba(47,30,26,.15)]">
-        <button onClick={()=>setMusic(!music)} aria-label={music?"Couper la musique":"Activer la musique"} className="fixed right-4 top-4 z-30 flex h-11 w-11 items-center justify-center rounded-full border border-[#C6A46A]/30 bg-[#FFFDF9]/85 text-[#6B1F2A] shadow-lg backdrop-blur transition hover:scale-105">
-          {music?<Music2 size={17}/>:<VolumeX size={17}/>}<span className="sr-only">Musique</span>
-        </button>
-
-        <header className="relative flex min-h-[92vh] items-end overflow-hidden bg-[#DDD0C4] px-7 pb-14 pt-28 text-center sm:px-12">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,.75),transparent_38%),linear-gradient(160deg,#D8CCC1,#F8F1EA_48%,#C4B4A7)]"/>
-          <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#291B19]/70 via-[#291B19]/15 to-transparent"/>
-          <FloralCorner className="absolute -right-16 -top-10 h-72 w-72 text-[#6B1F2A]/25"/>
-          <FloralCorner className="absolute -bottom-14 -left-14 h-64 w-64 rotate-180 text-[#F5EBDD]/25"/>
-          <motion.div initial={{opacity:0,y:26}} animate={{opacity:1,y:0}} transition={{duration:1}} className="relative z-10 mx-auto w-full text-[#FFFDF9]">
-            <p className="sans text-[10px] uppercase tracking-[.42em]">Le mariage de</p>
-            <h1 className="serif mt-7 text-6xl font-medium leading-[.82] tracking-[-.04em] sm:text-7xl">Manuela<span className="my-5 block text-4xl italic text-[#E2C489]">&</span>Elizée</h1>
-            <div className="mx-auto my-8 h-px w-20 bg-[#E2C489]"/>
-            <p className="serif text-2xl">Samedi 19 décembre 2026</p>
-            <p className="sans mt-4 text-[10px] uppercase tracking-[.28em] text-white/80">Abomey-Calavi</p>
-            <button onClick={()=>document.getElementById('rsvp')?.scrollIntoView({behavior:'smooth'})} className="sans mt-9 rounded-full border border-white/65 bg-white/10 px-7 py-3.5 text-[10px] font-medium uppercase tracking-[.2em] backdrop-blur transition hover:bg-white hover:text-[#6B1F2A]">Confirmer ma présence</button>
-          </motion.div>
-        </header>
-
-        <section className="relative px-7 py-20 text-center sm:px-14 sm:py-24">
-          <p className="serif mx-auto max-w-lg text-2xl italic leading-relaxed text-[#6B1F2A]">« L’amour est patient, l’amour est plein de bonté. »</p>
-          <p className="sans mt-3 text-[9px] uppercase tracking-[.25em] text-[#8C9B8A]">1 Corinthiens 13:4</p>
-          <div className="mx-auto my-10 h-px w-14 bg-[#C6A46A]/70"/>
-          <p className="sans mx-auto max-w-lg whitespace-pre-line text-[15px] font-light leading-8 text-[#665650]">Après avoir marché côte à côte, partagé nos joies, nos rêves et nos projets, nous avons choisi d’unir nos vies devant Dieu et devant ceux qui nous sont chers.{`\n\n`}C’est avec une immense émotion que nous vous invitons à célébrer avec nous ce jour unique.{`\n\n`}Votre présence sera pour nous un précieux témoignage d’affection et contribuera à rendre cette journée inoubliable.</p>
-        </section>
-
-        <section className="bg-[#F1E8DF] px-6 py-16 text-center sm:px-12">
-          <SectionTitle kicker="Le grand jour approche">Nous avons hâte de vous retrouver</SectionTitle>
-          <Countdown/>
-        </section>
-
-        <section className="px-7 py-20 sm:px-14">
-          <SectionTitle kicker="Notre chemin">Notre histoire</SectionTitle>
-          <div className="mx-auto max-w-md">
-            {[['2019','Notre première rencontre'],['2022','Nos premiers grands projets'],['2025','La demande'],['2026','Le grand jour']].map(([year,text],i)=>(
-              <div key={year} className="relative grid grid-cols-[70px_24px_1fr] gap-3 pb-9 last:pb-0">
-                <span className="serif text-right text-xl text-[#6B1F2A]">{year}</span>
-                <span className="relative flex justify-center"><i className="mt-2 h-2.5 w-2.5 rounded-full bg-[#C6A46A]"/>{i<3&&<i className="absolute left-1/2 top-4 h-full w-px -translate-x-1/2 bg-[#C6A46A]/40"/>}</span>
-                <p className="sans pt-1 text-sm font-light text-[#6B5C56]">{text}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="relative overflow-hidden bg-[#6B1F2A] px-8 py-16 text-center text-[#FFF9F2]">
-          <Sparkles className="mx-auto text-[#D9BD82]" size={20}/>
-          <p className="serif mx-auto mt-6 max-w-md text-2xl italic leading-relaxed">Comme aux noces de Cana, que cette union soit bénie d’abondance, de joie et de fidélité.</p>
-          <p className="sans mt-4 text-[9px] uppercase tracking-[.25em] text-[#D9BD82]">Jean 2, 1-11</p>
-        </section>
-
-        <section className="px-7 py-20 sm:px-14">
-          <SectionTitle kicker="Samedi 19 décembre 2026">Déroulement de la journée</SectionTitle>
-          <div className="mx-auto max-w-md">
-            <TimelineItem time="16h30" title="Cérémonie religieuse"><p>Église Sainte Antoine de Padoue<br/>Abomey-Calavi</p><a href="https://www.google.com/maps/search/?api=1&query=%C3%89glise%20Sainte%20Antoine%20de%20Padoue%20Abomey-Calavi" target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-2 text-xs font-medium text-[#6B1F2A] underline decoration-[#C6A46A] underline-offset-4"><Navigation size={13}/>Voir l’itinéraire</a></TimelineItem>
-            <TimelineItem time="18h30" title="Cocktail"><p>Lieu à préciser</p></TimelineItem>
-            <TimelineItem time="20h00" title="Réception"><p>Lieu à préciser</p></TimelineItem>
-            <TimelineItem time="22h00" title="Soirée dansante" last><p>Célébrons ensemble jusqu’au bout de la nuit.</p></TimelineItem>
-          </div>
-        </section>
-
-        <section className="bg-[#F1E8DF] px-7 py-20 text-center sm:px-14">
-          <SectionTitle kicker="Élégance naturelle">Dress code</SectionTitle>
-          <p className="sans mx-auto max-w-lg text-sm font-light leading-7 text-[#6B5C56]">Nous serions heureux de vous voir vêtus dans les couleurs de notre célébration afin de créer une harmonie élégante tout au long de cette journée.</p>
-          <div className="mt-10 grid grid-cols-3 gap-3">
-            {colors.map(c=><div key={c.name} className="overflow-hidden rounded-2xl border border-[#C6A46A]/20 bg-white shadow-sm"><div className="h-28 sm:h-36" style={{background:`linear-gradient(135deg,${c.value},${c.value}cc)`}}/><p className="sans py-4 text-[9px] font-medium uppercase tracking-[.2em] text-[#5C4E48]">{c.name}</p></div>)}
-          </div>
-        </section>
-
-        <section className="px-7 py-20 text-center sm:px-14">
-          <SectionTitle kicker="Une pensée pour nous">Notre projet de vie</SectionTitle>
-          <Gift className="mx-auto text-[#C6A46A]" size={27} strokeWidth={1.2}/>
-          <p className="sans mx-auto mt-6 max-w-lg text-sm font-light leading-7 text-[#6B5C56]">Votre présence représente déjà le plus beau des cadeaux. Pour ceux qui souhaitent nous accompagner davantage dans le début de cette nouvelle aventure, une participation pourra être effectuée via Mobile Money.</p>
-          <div className="mx-auto mt-9 max-w-sm rounded-2xl border border-[#C6A46A]/25 bg-[#FFFDF9] p-6 shadow-[0_14px_35px_rgba(70,40,34,.07)]">
-            <p className="sans text-[9px] uppercase tracking-[.22em] text-[#8C9B8A]">Mobile Money</p><p className="serif mt-3 text-2xl text-[#6B1F2A]">À compléter</p><p className="sans mt-1 text-xs text-[#8B7C75]">Titulaire : à compléter</p>
-            <button onClick={copyNumber} className="sans mt-5 inline-flex items-center gap-2 rounded-full bg-[#6B1F2A] px-5 py-3 text-[9px] font-medium uppercase tracking-[.18em] text-white"><Copy size={13}/>{copied?'Copié':'Copier le numéro'}</button>
-          </div>
-        </section>
-
-        <section id="rsvp" className="bg-[#F1E8DF] px-6 py-20 sm:px-12">
-          <SectionTitle kicker="Avant le 1er décembre 2026">Confirmez votre présence</SectionTitle>
-          <div className="mx-auto max-w-md rounded-[28px] border border-white bg-[#FBF7F2] p-6 shadow-[0_20px_50px_rgba(63,38,32,.09)] sm:p-9">
-            <AnimatePresence mode="wait">
-              {!submitted ? <motion.form key="form" onSubmit={submit} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0,y:-8}} className="space-y-6">
-                <Field label="Nom et prénom *"><input required className={inputClass} value={form.name} onChange={e=>update('name',e.target.value)} placeholder="Votre nom complet"/></Field>
-                <Field label="Téléphone *"><div className="relative"><Phone size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9B8D86]"/><input required type="tel" className={`${inputClass} pl-11`} value={form.phone} onChange={e=>update('phone',e.target.value)} placeholder="Votre numéro"/></div></Field>
-                <Field label="Présence *"><div className="grid grid-cols-1 gap-2 sm:grid-cols-2">{[['yes','Oui, avec joie'],['no','Non, à regret']].map(([id,label])=><button key={id} type="button" onClick={()=>setAttendance(id)} className={`sans rounded-xl border px-3 py-3 text-xs transition ${attendance===id?'border-[#6B1F2A] bg-[#6B1F2A] text-white':'border-[#D8CBC3] bg-white/65 text-[#675852]'}`}>{label}</button>)}</div></Field>
-                <Field label="Nombre d’accompagnants"><div className="relative"><select className={`${inputClass} appearance-none`} value={form.guests} onChange={e=>update('guests',e.target.value)}>{[0,1,2,3,4].map(n=><option key={n}>{n}</option>)}</select><ChevronDown size={15} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#8D7E77]"/></div></Field>
-                <Field label="Restrictions alimentaires" optional><input className={inputClass} value={form.diet} onChange={e=>update('diet',e.target.value)} placeholder="Allergies, régime particulier…"/></Field>
-                <Field label="Message aux mariés" optional><textarea rows={4} className={`${inputClass} resize-none`} value={form.message} onChange={e=>update('message',e.target.value)} placeholder="Un mot pour nous…"/></Field>
-                <button className="sans w-full rounded-full bg-[#6B1F2A] px-6 py-4 text-[10px] font-medium uppercase tracking-[.2em] text-white shadow-lg shadow-[#6B1F2A]/15 transition hover:-translate-y-0.5 hover:bg-[#571721]">Confirmer ma présence</button>
-                <p className="sans text-center text-[9px] text-[#9A8D86]">* Champs obligatoires</p>
-              </motion.form> : <motion.div key="success" initial={{opacity:0,scale:.97}} animate={{opacity:1,scale:1}} className="flex min-h-[430px] flex-col items-center justify-center text-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#6B1F2A] text-white shadow-lg"><Check size={28}/></div><h3 className="serif mt-7 text-4xl text-[#5A1722]">Merci pour votre réponse</h3><p className="sans mt-4 max-w-xs text-sm font-light leading-7 text-[#6B5C56]">{thanks}</p><button onClick={()=>setSubmitted(false)} className="sans mt-7 text-[9px] font-medium uppercase tracking-[.18em] text-[#6B1F2A] underline decoration-[#C6A46A] underline-offset-4">Modifier ma réponse</button>
-              </motion.div>}
-            </AnimatePresence>
-          </div>
-        </section>
-
-        <footer className="relative overflow-hidden bg-[#5A1722] px-7 py-16 text-center text-[#FFF9F2]">
-          <FloralCorner className="absolute -bottom-24 -right-20 h-72 w-72 text-white/5"/>
-          <p className="serif mx-auto max-w-md text-xl italic leading-relaxed">« Ce que Dieu a uni, que l’homme ne le sépare pas. »</p>
-          <p className="sans mt-3 text-[9px] uppercase tracking-[.22em] text-[#D9BD82]">Matthieu 19:6</p>
-          <div className="mx-auto my-8 h-px w-16 bg-[#D9BD82]/55"/>
-          <p className="serif text-4xl">Manuela & Elizée</p>
-          <p className="sans mt-3 text-[9px] uppercase tracking-[.3em] text-white/65">19 décembre 2026</p>
-          <p className="serif mt-8 text-lg italic text-[#EADCCB]">Avec toute notre affection</p>
-        </footer>
-      </div>
-    </main>
-  );
-}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Invitation au mariage de Manuela et Elizée, le samedi 19 décembre 2026 à Abomey-Calavi.">
+<meta name="theme-color" content="#F8F3EB">
+<title>Manuela &amp; Elizée · 19 décembre 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Lora:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ivory:#F8F3EB;--champagne:#EFE5D5;--wine:#721F2B;--rose:#A96B76;--gold:#C6A15B;--ink:#3F2B2B;--muted:#745E5A;--shadow:0 18px 55px rgba(63,43,43,.10)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;overflow:hidden}body{background:#E9DFD2;color:var(--ink);font-family:"Cormorant Garamond",serif;font-size:18px;font-weight:500;-webkit-font-smoothing:antialiased}.bodoni,h1,h2{font-family:"Bodoni Moda",serif}.practical,input,textarea,button,a{font-family:Lora,serif}.narrative{font-style:italic;line-height:1.65}.paper{background-color:var(--ivory);background-image:radial-gradient(rgba(114,31,43,.028) .55px,transparent .65px),radial-gradient(rgba(63,43,43,.02) .55px,transparent .65px);background-size:9px 9px,11px 11px;background-position:0 0,5px 6px}.app{position:relative;width:min(100%,680px);height:100svh;margin:auto;overflow:hidden;box-shadow:0 0 80px rgba(63,43,43,.15)}.screen{position:absolute;inset:0;display:none;min-height:100svh;overflow-y:auto;padding:clamp(42px,7vh,74px) 24px 84px;text-align:center;scrollbar-width:none}.screen::-webkit-scrollbar{display:none}.screen.active{display:flex;flex-direction:column;justify-content:center}.inner{width:100%;max-width:560px;margin:auto}.page-no{font-family:"Bodoni Moda";font-size:.8rem;letter-spacing:.28em;color:var(--gold)}h1{margin:.45rem 0;color:var(--wine);font-size:clamp(3.1rem,13vw,4.8rem);line-height:.87}h2{margin:.55rem 0;color:var(--wine);font-size:clamp(2rem,8vw,2.8rem);line-height:1.08}.amp{display:block;margin:.35rem;color:var(--gold);font-size:.62em}.ornament{display:flex;align-items:center;justify-content:center;gap:10px;color:var(--gold);margin:20px auto}.ornament:before,.ornament:after{content:"";width:48px;height:1px;background:currentColor}.date-card{max-width:330px;margin:24px auto 20px;padding:18px;border:1px solid rgba(198,161,91,.58);border-radius:20px;background:rgba(255,255,255,.28)}.date-card .day{font-family:Lora;font-size:.72rem;letter-spacing:.24em}.date-card strong{display:block;font-family:"Bodoni Moda";font-size:3.6rem;line-height:1;color:var(--wine)}.date-card .month{font-family:"Bodoni Moda";font-weight:600;letter-spacing:.08em;color:var(--wine)}.countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:390px;margin:12px auto}.countdown div{padding:10px 2px;border:1px solid rgba(198,161,91,.22);border-radius:11px;background:rgba(255,255,255,.38)}.countdown b{display:block;font-family:"Bodoni Moda";font-size:1.12rem;color:var(--wine)}.countdown span{font-family:Lora;font-size:.57rem;text-transform:uppercase}.spiritual{margin-top:26px;padding:24px 20px;border-radius:20px;background:var(--wine);color:var(--ivory);box-shadow:var(--shadow)}.spiritual h3{font-family:"Bodoni Moda";font-size:1.45rem;margin:8px}.spiritual .ref{color:#E4C983;font-style:normal;font-size:.8rem}.info-card{margin:24px auto;padding:25px 18px;max-width:430px;border:1px solid rgba(198,161,91,.35);border-radius:20px;background:rgba(255,255,255,.31)}.time{font-family:Lora;color:var(--wine);font-size:1.3rem;font-weight:600}.timeline{max-width:430px;margin:25px auto;text-align:left}.event{display:grid;grid-template-columns:94px 22px 1fr;gap:8px;padding-bottom:25px}.event-time{font-family:Lora;text-align:right;color:var(--wine);font-size:.88rem;font-weight:600}.rail{position:relative}.rail:before{content:"";position:absolute;left:50%;top:10px;bottom:-31px;width:1px;background:var(--gold)}.event:last-child .rail:before{display:none}.rail i{position:absolute;top:4px;left:50%;width:11px;height:11px;transform:translateX(-50%);border-radius:50%;background:var(--wine);border:2px solid var(--gold)}.event h3{margin:0;font-family:Lora;font-size:1rem}.event p{margin:.35rem 0 0}.media{display:none;margin-top:20px}.media.visible{display:block}.media img{width:100%;height:clamp(190px,30svh,280px);object-fit:cover;border-radius:16px;box-shadow:0 12px 30px rgba(63,43,43,.10)}.btns{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:28px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:12px 19px;border:0;border-radius:999px;background:var(--wine);color:white;text-decoration:none;font-size:.78rem;font-weight:600;cursor:pointer}.btn.secondary{color:var(--wine);background:transparent;border:1px solid rgba(114,31,43,.28)}.progress{position:fixed;z-index:20;left:50%;bottom:max(15px,env(safe-area-inset-bottom));display:flex;gap:7px;transform:translateX(-50%)}.dot{width:8px;height:8px;border:0;border-radius:99px;background:rgba(169,107,118,.42);padding:0}.dot.active{width:25px;background:var(--wine)}.reveal{opacity:0;transform:translateY(20px);filter:blur(3px)}.active .reveal{animation:show .72s ease forwards;animation-delay:calc(var(--i)*130ms)}@keyframes show{to{opacity:1;transform:none;filter:none}}.petals{position:fixed;inset:0;z-index:30;pointer-events:none;overflow:hidden;display:none}.petals.on{display:block}.petal{position:absolute;top:-9%;width:10px;height:17px;border-radius:72% 28% 67% 33%/76% 32% 68% 24%;opacity:.2;animation:fall linear infinite}.petal.ivory{background:var(--ivory)!important;border:1px solid rgba(114,31,43,.22)}@keyframes fall{0%{transform:translate3d(0,-8vh,0) rotate(0);opacity:0}15%{opacity:.2}50%{transform:translate3d(20px,50vh,0) rotate(155deg)}100%{transform:translate3d(-16px,110vh,0) rotate(345deg);opacity:0}}.overlay{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:20px;background:var(--champagne);transition:opacity .7s}.overlay.hidden{opacity:0;pointer-events:none}.envelope{position:relative;width:224px;height:320px;margin:22px auto;cursor:pointer;perspective:1600px}.letter,.panel{position:absolute;inset:0;border-radius:5px}.letter{display:grid;place-items:center;border:1px solid var(--gold)}.panel{z-index:2;width:50%;background:var(--ivory);border:1px solid rgba(198,161,91,.36);box-shadow:0 9px 22px rgba(63,43,43,.14);transition:transform 1s cubic-bezier(.6,0,.25,1);backface-visibility:hidden}.left{right:auto;transform-origin:left}.right{left:auto;transform-origin:right}.envelope.open .left{transform:rotateY(-113deg)}.envelope.open .right{transform:rotateY(113deg)}.seal{position:absolute;z-index:4;left:50%;top:50%;display:grid;place-items:center;width:78px;height:74px;transform:translate(-50%,-50%);border-radius:48% 52% 45% 55%/54% 44% 56% 46%;background:radial-gradient(circle at 30% 25%,#A34855,#721F2B 55%,#481019);box-shadow:0 9px 18px rgba(58,14,22,.28),inset 0 3px 4px rgba(255,255,255,.14);transition:.55s}.seal:after{content:"M&E";display:grid;place-items:center;width:55px;height:55px;border:1px solid rgba(230,202,128,.8);border-radius:50%;font-family:"Bodoni Moda";color:#E4C980}.envelope.open .seal{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(35deg)}form{text-align:left;max-width:450px;margin:20px auto}.field{margin:14px 0}.field label,.legend{display:block;margin-bottom:6px;font-family:Lora;font-size:.78rem;font-weight:600}.field input,.field textarea,.field select{width:100%;min-height:47px;border:1px solid #D8C7BA;border-radius:12px;background:rgba(255,255,255,.72);padding:12px;font-family:Lora;font-size:1rem;color:var(--ink)}.choices{display:grid;gap:8px}.choice{display:flex;align-items:center;gap:9px;padding:12px;border:1px solid #D8C7BA;border-radius:12px;background:rgba(255,255,255,.68);font-family:Lora;font-size:.9rem}.choice input{accent-color:var(--wine)}.consent{font-size:.78rem;line-height:1.35}.status{text-align:center;min-height:24px;font-family:Lora;font-size:.85rem}.status.error{color:#8A1D29}.status.success{color:#315D3A}.hidden-field{display:none}.closing{padding:25px;border-radius:20px;background:var(--wine);color:var(--ivory)}
+@media(max-width:380px){body{font-size:17px}.screen{padding-inline:17px}.event{grid-template-columns:80px 19px 1fr}.countdown span{font-size:.51rem}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none;filter:none}.petals{display:none!important}}
+</style>
+</head>
+<body>
+<div class="overlay" id="overlay"><div style="text-align:center"><div class="bodoni" style="font-size:1.9rem;color:var(--wine)">Manuela &amp; Elizée</div><div class="practical" style="margin-top:6px">Samedi 19 décembre 2026</div><div class="envelope paper" id="envelope" role="button" tabindex="0" aria-label="Toucher le cachet pour ouvrir l’invitation"><div class="letter"><div class="bodoni" style="color:var(--wine)">Vous êtes invité(e)</div></div><div class="panel left"></div><div class="panel right"></div><div class="seal"></div></div><div>Toucher le cachet pour ouvrir l’invitation</div></div></div>
+<div class="petals" id="petals" aria-hidden="true"></div>
+<main class="app paper" id="app">
+<section class="screen active" data-page="0"><div class="inner"><div class="reveal page-no" style="--i:0">01</div><div class="reveal" style="--i:1"><div class="practical" style="letter-spacing:.2em;text-transform:uppercase">Le mariage de</div><h1>Manuela<span class="amp">&amp;</span>Elizée</h1></div><div class="reveal ornament" style="--i:2">✦</div><p class="reveal narrative" style="--i:3">Deux chemins, une promesse, une vie à écrire ensemble.</p><div class="reveal date-card" style="--i:4"><div class="day">SAMEDI</div><strong>19</strong><div class="month">DÉCEMBRE 2026</div></div><div class="reveal" style="--i:5"><div>Il ne reste plus que…</div><div class="countdown" id="countdown"><div><b id="days">--</b><span>Jours</span></div><div><b id="hours">--</b><span>Heures</span></div><div><b id="minutes">--</b><span>Minutes</span></div><div><b id="seconds">--</b><span>Secondes</span></div></div></div><div class="reveal btns" style="--i:6"><button class="btn next">Découvrir notre histoire</button></div></div></section>
+<section class="screen" data-page="1"><div class="inner"><div class="reveal page-no" style="--i:0">02</div><h2 class="reveal" style="--i:1">Notre histoire</h2><div class="reveal ornament" style="--i:2">✦</div><p class="reveal narrative" style="--i:3">Quand deux chemins deviennent une seule promesse</p><p class="reveal narrative" style="--i:4">Il est des rencontres qui arrivent doucement,<br>puis deviennent une évidence.<br>Au fil du temps, nos regards ont appris à se reconnaître,<br>nos pas à avancer ensemble<br>et nos projets à se conjuguer au même avenir.<br>Aujourd’hui, entourés de ceux que nous aimons<br>et guidés par la grâce de Dieu,<br>nous choisissons de nous dire oui.</p><div class="reveal spiritual" style="--i:5"><h3>Comme aux noces de Cana</h3><p class="narrative">Comme aux noces de Cana, nous confions notre union à Celui qui transforme l’ordinaire en abondance, les instants partagés en souvenirs précieux et l’amour en une promesse appelée à grandir. Que cette journée soit remplie de joie, que nos cœurs ne manquent jamais d’espérance et que notre foyer demeure sous la bénédiction de Dieu.</p><div class="ref">Jean 2, 1-11</div></div><div class="reveal btns" style="--i:6"><button class="btn secondary prev">Retour</button><button class="btn next">Découvrir la cérémonie</button></div></div></section>
+<section class="screen" data-page="2"><div class="inner"><div class="reveal page-no" style="--i:0">03</div><h2 class="reveal" style="--i:1">Cérémonie religieuse</h2><div class="reveal ornament" style="--i:2">✦</div><p class="reveal narrative" style="--i:3">C’est sous le regard de Dieu et entourés de ceux qui nous sont chers que nous échangerons nos promesses.</p><div class="reveal info-card" style="--i:4"><div class="time">14 h 00</div><h3 class="bodoni">Église Saint-Antoine de Padoue</h3><div class="practical">Abomey-Calavi</div><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=%C3%89glise%20Saint-Antoine%20de%20Padoue%20Abomey-Calavi" target="_blank" rel="noopener noreferrer">Voir l’itinéraire</a></div><div class="media" id="church-media"><img loading="lazy" alt="Photographie de l’église Saint-Antoine de Padoue" id="church-image"></div><p class="reveal narrative" style="--i:5">Nous vous invitons à prendre place quelques minutes avant le début de la célébration.</p><div class="reveal btns" style="--i:6"><button class="btn secondary prev">Retour</button><button class="btn next">Poursuivre la célébration</button></div></div></section>
+<section class="screen" data-page="3"><div class="inner"><div class="reveal page-no" style="--i:0">04</div><h2 class="reveal" style="--i:1">La célébration</h2><div class="reveal ornament" style="--i:2">✦</div><p class="reveal narrative" style="--i:3">Après l’émotion de nos promesses, nous aurons la joie de prolonger cette journée avec vous autour d’un moment de partage et de convivialité.</p><div class="reveal timeline" style="--i:4"><div class="event"><div class="event-time">18 h 00</div><div class="rail"><i></i></div><div><h3>Cocktail de bienvenue</h3></div></div><div class="event"><div class="event-time">Après le cocktail</div><div class="rail"><i></i></div><div><h3>Dîner et célébration</h3></div></div><div class="event"><div class="event-time">00 h 00</div><div class="rail"><i></i></div><div><h3>Fin des festivités</h3></div></div></div><div class="reveal" style="--i:5"><div class="media" id="hall-media"><img loading="lazy" alt="Photographie de la salle de réception" id="hall-image"></div><h3 class="bodoni">Le cadre de notre réception</h3><div class="practical">[NOM_DE_LA_SALLE]<br>[ADRESSE_DE_LA_SALLE]</div><a class="btn secondary" id="hall-map" href="#">Voir l’itinéraire</a></div><div class="reveal btns" style="--i:6"><button class="btn secondary prev">Retour</button><button class="btn next">Confirmer ma présence</button></div></div></section>
+<section class="screen" data-page="4"><div class="inner"><div class="reveal page-no" style="--i:0">05</div><h2 class="reveal" style="--i:1">Votre présence à nos côtés</h2><div class="reveal ornament" style="--i:2">✦</div><p class="reveal narrative" style="--i:3">Votre présence donnera à cette journée une saveur toute particulière. Merci de nous faire savoir si nous aurons la joie de vous compter parmi nous.</p><p class="reveal practical" style="--i:4;color:var(--wine);font-weight:600">Réponse souhaitée avant le 1er décembre 2026</p><form class="reveal" style="--i:5" id="rsvp-form"><div class="field"><label for="full_name">Nom et prénom *</label><input id="full_name" name="full_name" autocomplete="name" required maxlength="120"></div><div class="field"><label for="phone">Numéro de téléphone *</label><input id="phone" name="phone" type="tel" autocomplete="tel" required maxlength="30"></div><div class="field"><span class="legend">Présence *</span><div class="choices"><label class="choice"><input type="radio" name="attendance_status" value="attending" required> Oui, avec joie</label><label class="choice"><input type="radio" name="attendance_status" value="declined" required> Malheureusement, je ne pourrai pas être présent(e)</label></div></div><div class="field hidden-field" id="guest-field"><label for="guest_count">Nombre total de personnes *</label><select id="guest_count" name="guest_count"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></div><div class="field"><label for="message">Message aux mariés (facultatif)</label><textarea id="message" name="message" rows="3" maxlength="1000"></textarea></div><label class="choice consent"><input type="checkbox" name="consent" required> J’accepte que ces informations soient utilisées uniquement pour l’organisation du mariage.</label><div class="status" id="form-status" role="status" aria-live="polite"></div><button class="btn" id="submit" type="submit">Envoyer ma confirmation</button></form><div class="reveal btns" style="--i:6"><button class="btn secondary prev">Retour</button><button class="btn next">Continuer</button></div></div></section>
+<section class="screen" data-page="5"><div class="inner"><div class="reveal page-no" style="--i:0">06</div><h2 class="reveal" style="--i:1">Dons et attentions</h2><div class="reveal ornament" style="--i:2">✦</div><p class="reveal narrative" style="--i:3">Votre présence et vos prières sont déjà pour nous un cadeau précieux. Pour celles et ceux qui souhaitent nous témoigner une attention supplémentaire, une participation à notre projet de vie pourra être effectuée via Mobile Money.</p><div class="reveal info-card" style="--i:4"><div class="practical">Mobile Money</div><div class="bodoni" style="font-size:1.5rem;color:var(--wine)">À compléter</div><div class="practical">Titulaire : à compléter</div><button class="btn" id="copy">Copier le numéro</button></div><div class="reveal closing" style="--i:5"><div class="bodoni" style="font-size:1.25rem">« Ce que Dieu a uni, que l’homme ne le sépare pas. »</div><div style="color:#E4C983;margin-top:8px">Matthieu 19:6</div><div class="bodoni" style="font-size:1.8rem;margin-top:22px">Manuela &amp; Elizée</div><div>19 décembre 2026</div></div><div class="reveal btns" style="--i:6"><button class="btn secondary prev">Retour</button><button class="btn" id="restart">Revenir au début</button></div></div></section>
+<div class="progress" id="progress" aria-label="Progression"></div>
+</main>
+<script>
+const CONFIG={churchImage:"",hallImage:"[CHEMIN_OU_URL_DE_LA_PHOTO_DE_LA_SALLE]",hallMap:"[LIEN_GOOGLE_MAPS_DE_LA_SALLE]",mobileMoney:"À compléter"};
+const screens=[...document.querySelectorAll('.screen')];let page=0,startY=null;
+function go(n){page=Math.max(0,Math.min(screens.length-1,n));screens.forEach((s,i)=>{s.classList.toggle('active',i===page);s.scrollTop=0});[...document.querySelectorAll('.dot')].forEach((d,i)=>d.classList.toggle('active',i===page));}
+const progress=document.getElementById('progress');screens.forEach((_,i)=>{const b=document.createElement('button');b.className='dot'+(i===0?' active':'');b.setAttribute('aria-label','Page '+(i+1));b.onclick=()=>go(i);progress.appendChild(b)});
+document.addEventListener('click',e=>{if(e.target.closest('.next'))go(page+1);if(e.target.closest('.prev'))go(page-1)});
+document.addEventListener('keydown',e=>{if(document.activeElement.matches('input,textarea,select'))return;if(e.key==='ArrowRight'||e.key==='ArrowDown')go(page+1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(page-1)});
+document.getElementById('app').addEventListener('touchstart',e=>startY=e.touches[0].clientY,{passive:true});document.getElementById('app').addEventListener('touchend',e=>{if(startY===null)return;const d=startY-e.changedTouches[0].clientY;if(Math.abs(d)>70)go(page+(d>0?1:-1));startY=null},{passive:true});
+const envelope=document.getElementById('envelope'),overlay=document.getElementById('overlay'),petals=document.getElementById('petals');let opened=false;function openInvitation(){if(opened)return;opened=true;envelope.classList.add('open');setTimeout(()=>{overlay.classList.add('hidden');petals.classList.add('on')},1150);setTimeout(()=>{[...petals.children].slice(3).forEach(p=>p.style.display='none')},9000)}envelope.addEventListener('click',openInvitation);envelope.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openInvitation()}});
+['7','23','41','59','77','92'].forEach((x,i)=>{const p=document.createElement('i');p.className='petal'+(i===4?' ivory':'');p.style.cssText=`left:${x}%;background:${i%2?'#A96B76':'#721F2B'};animation-duration:${16+i*2}s;animation-delay:-${i*2.7}s`;petals.appendChild(p)});
+const weddingDate=new Date('2026-12-19T14:00:00+01:00');function tick(){let d=Math.max(0,weddingDate-Date.now());const vals=[Math.floor(d/86400000),Math.floor(d/3600000)%24,Math.floor(d/60000)%60,Math.floor(d/1000)%60];['days','hours','minutes','seconds'].forEach((id,i)=>document.getElementById(id).textContent=String(vals[i]).padStart(2,'0'))}tick();setInterval(tick,1000);
+if(CONFIG.churchImage){document.getElementById('church-image').src=CONFIG.churchImage;document.getElementById('church-media').classList.add('visible')}if(CONFIG.hallImage&&!CONFIG.hallImage.startsWith('[')){document.getElementById('hall-image').src=CONFIG.hallImage;document.getElementById('hall-media').classList.add('visible')}const hallMap=document.getElementById('hall-map');if(!CONFIG.hallMap.startsWith('['))hallMap.href=CONFIG.hallMap;else hallMap.onclick=e=>e.preventDefault();
+const form=document.getElementById('rsvp-form'),guestField=document.getElementById('guest-field'),guestCount=document.getElementById('guest_count'),status=document.getElementById('form-status'),submit=document.getElementById('submit');form.addEventListener('change',e=>{if(e.target.name==='attendance_status'){const yes=e.target.value==='attending';guestField.classList.toggle('hidden-field',!yes);guestCount.required=yes;guestCount.disabled=!yes;if(!yes)guestCount.value='1'}});form.addEventListener('submit',async e=>{e.preventDefault();status.className='status';status.textContent='Envoi en cours…';submit.disabled=true;const fd=new FormData(form),att=fd.get('attendance_status');const payload={full_name:fd.get('full_name').trim(),phone:fd.get('phone').trim(),attendance_status:att,guest_count:att==='attending'?Number(fd.get('guest_count')):0,message:fd.get('message').trim(),consent:fd.get('consent')==='on'};try{const r=await fetch('/api/rsvp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await r.json();if(!r.ok)throw new Error(data.message||'Impossible d’enregistrer la réponse.');status.className='status success';status.textContent='Merci, votre réponse a bien été enregistrée.';form.reset();guestField.classList.add('hidden-field')}catch(err){status.className='status error';status.textContent=err.message||'Une erreur est survenue. Veuillez réessayer.'}finally{submit.disabled=false}});
+document.getElementById('copy').onclick=async()=>{try{await navigator.clipboard.writeText(CONFIG.mobileMoney);document.getElementById('copy').textContent='Copié'}catch{}setTimeout(()=>document.getElementById('copy').textContent='Copier le numéro',1500)};document.getElementById('restart').onclick=()=>go(0);
+</script>
+<noscript><style>.overlay{display:none}.screen{position:relative;display:flex!important;min-height:auto;overflow:visible}.app{height:auto;overflow:visible}.reveal{opacity:1;transform:none;filter:none}.progress{display:none}</style></noscript>
+</body></html>
